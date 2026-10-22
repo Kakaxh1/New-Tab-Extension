@@ -994,7 +994,7 @@ const WidgetsManager = (() => {
           <button class="quote-copy-btn" title="Copy principle to clipboard">${copySvg}</button>
         </div>
         <p class="quote-text">"A hidden endpoint is not an access control."</p>
-        <span class="quote-author">— Bhavya Morvadiya</span>
+        <span class="quote-author">— VAPT PRINCIPLE</span>
       </div>
     `;
 
@@ -3192,8 +3192,8 @@ const WidgetsManager = (() => {
     }
     
     let scopeDomain = typeof DorkService !== 'undefined' ? DorkService.getScopeDomain() : 'example.com';
-    let targetPerson = typeof DorkService !== 'undefined' ? DorkService.getPersonTarget() : 'John Doe';
-    let targetHandle = typeof DorkService !== 'undefined' ? DorkService.getHandleTarget() : 'johndoe';
+    let targetPerson = typeof DorkService !== 'undefined' ? DorkService.getPersonTarget() : 'Target Person';
+    let targetHandle = typeof DorkService !== 'undefined' ? DorkService.getHandleTarget() : 'targetuser';
     let activeCat = 'all';
     let currentQuery = `site:${scopeDomain}`;
 

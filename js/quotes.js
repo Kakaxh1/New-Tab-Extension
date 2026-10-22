@@ -6,62 +6,62 @@ const QuotesWidget = (() => {
   const QUOTES = [
     {
       text: "A hidden endpoint is not an access control.",
-      author: "Bhavya Morvadiya",
+      author: "VAPT PRINCIPLE",
       category: "auth"
     },
     {
       text: "A valid request can still be an invalid action.",
-      author: "Bhavya Morvadiya",
+      author: "VAPT PRINCIPLE",
       category: "logic"
     },
     {
       text: "The interesting bugs usually live between two features that work perfectly on their own.",
-      author: "Bhavya Morvadiya",
+      author: "VAPT PRINCIPLE",
       category: "logic"
     },
     {
       text: "Authentication proves who you are. Authorization decides what you are allowed to access.",
-      author: "Bhavya Morvadiya",
+      author: "VAPT PRINCIPLE",
       category: "auth"
     },
     {
       text: "Enumeration turns assumptions into attack surface.",
-      author: "Bhavya Morvadiya",
+      author: "VAPT PRINCIPLE",
       category: "recon"
     },
     {
       text: "Every implicit trust relationship is an attack path waiting for enumeration.",
-      author: "Bhavya Morvadiya",
+      author: "VAPT PRINCIPLE",
       category: "recon"
     },
     {
       text: "The best payload is useless when you do not understand the application first.",
-      author: "Bhavya Morvadiya",
+      author: "VAPT PRINCIPLE",
       category: "recon"
     },
     {
       text: "Security testing is not finding bugs. It is proving what an attacker can chain together.",
-      author: "Bhavya Morvadiya",
+      author: "VAPT PRINCIPLE",
       category: "exploit"
     },
     {
       text: "Client-side validation is a UX feature, never a security boundary.",
-      author: "Bhavya Morvadiya",
+      author: "VAPT PRINCIPLE",
       category: "auth"
     },
     {
       text: "Complex systems fail in complex ways; the vulnerability is often the gap between architectural assumptions.",
-      author: "Bhavya Morvadiya",
+      author: "VAPT PRINCIPLE",
       category: "logic"
     },
     {
       text: "If you don't map the state machine, you can't break the business logic.",
-      author: "Bhavya Morvadiya",
+      author: "VAPT PRINCIPLE",
       category: "logic"
     },
     {
       text: "Defense in depth only works if the layers do not share the same single point of failure.",
-      author: "Bhavya Morvadiya",
+      author: "VAPT PRINCIPLE",
       category: "architecture"
     }
   ];

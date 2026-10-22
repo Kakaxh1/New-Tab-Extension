@@ -1,27 +1,30 @@
-# VAPT Minimal New Tab — Cybersecurity & Recon Dashboard
+# VAPT Minimal New Tab - Cybersecurity & Recon Dashboard
 
-A sleek, minimalist, cybersecurity-themed New Tab extension for Google Chrome. Engineered with dark glassmorphism, responsive widget grid architecture, command-driven search, and specialized penetration testing & OSINT reconnaissance modules.
+A sleek, minimalist, cybersecurity-themed New Tab dashboard extension for Google Chrome. Engineered with dark glassmorphism, responsive grid widget architecture, command-driven search, and specialized penetration testing and OSINT reconnaissance modules.
+
+Developed by [kakaxh1](https://github.com/Kakaxh1/New-Tab-Extension).
 
 ---
 
 ## Quick Start / Installation
 
-1. Open **Google Chrome** and navigate to `chrome://extensions/`.
-2. Enable the **Developer mode** toggle in the top-right corner.
-3. Click **Load unpacked** in the top-left corner.
-4. Select this folder:
-   ```text
-   d:\Docs\Bhavya\Extention\New Tabs
+1. Clone or download this repository:
+   ```bash
+   git clone https://github.com/Kakaxh1/New-Tab-Extension.git
    ```
-5. Open a new tab (`Ctrl + T` or `Cmd + T`) to launch your VAPT dashboard immediately.
+2. Open **Google Chrome** and navigate to `chrome://extensions/`.
+3. Enable the **Developer mode** toggle in the top-right corner.
+4. Click **Load unpacked** in the top-left corner.
+5. Select the `New-Tab-Extension` directory.
+6. Open a new tab (`Ctrl + T` or `Cmd + T`) to launch your VAPT dashboard.
 
 ---
 
 ## Visual Design & Aesthetics
 
-* **Cyberpunk Glassmorphism**: Tailored HSL color palette, translucent frosted glass cards with multi-layer background blur, high-contrast typography (Inter & monospace digits), and smooth micro-interactions.
+* **Cyberpunk Glassmorphism**: Tailored HSL color palette, translucent frosted glass cards with multi-layer background blur, high-contrast typography (Inter and monospace digits), and smooth micro-interactions.
 * **Three Curated Themes**:
-  * **Charcoal Glass (Default)**: Deep blue-gray glass with vibrant Google Blue/Cyan telemetry accents.
+  * **Charcoal Glass (Default)**: Deep blue-gray glass with vibrant Google Blue and Cyan telemetry accents.
   * **OLED Midnight**: Pitch-black surfaces designed for maximum battery savings and ultra-high contrast.
   * **Frosted Light**: Clean slate-white glass aesthetic with soft drop shadows and crisp dark typography.
   *(Toggle instantly with `D` or via Settings).*
@@ -29,7 +32,7 @@ A sleek, minimalist, cybersecurity-themed New Tab extension for Google Chrome. E
   * **Unsplash Curated Stream**: Dynamic high-resolution wallpapers across Cyberpunk, Tech, Minimal, Tokyo Night, and Space categories with 1-click shuffle (`B`).
   * **Custom Image / URL**: Load any external wallpaper URL or upload local images stored offline.
   * **Cyber Gradients**: Solid colors and built-in hacker gradients (Cyber Void, Deep Matrix, Carbon Fiber, Crimson Eclipse).
-  * **Visual Post-Processing**: Real-time adjustable sliders for Background Darkness (0–95%), Frosted Blur (0–25px), Vignette Shadows, and subtle 3D Parallax mouse depth.
+  * **Visual Post-Processing**: Real-time adjustable sliders for Background Darkness (0-95%), Frosted Blur (0-25px), Vignette Shadows, and subtle 3D Parallax mouse depth.
 
 ---
 
@@ -41,12 +44,12 @@ Located across the top navigation bar for zero-click operational awareness:
 
 * **Active Public IP & VPN Leak Checker (`I`)**:
   * Real-time network indicator with status dot:
-    * 🟢 **Secure / Public Network**
-    * 🔵 **Protected VPN / Proxy / Datacenter**
-    * 🔴 **Network Leak / Offline**
+    * Green: Secure / Public Network
+    * Blue: Protected VPN / Proxy / Datacenter
+    * Red: Network Leak / Offline
   * Click to reveal the **Network Telemetry Popover**: inspects your public IPv4/IPv6, ISP/Organization, Country, City, and provides a 1-click **Copy IP** button.
 * **Compact Header Countdown & Sprint Timer**:
-  * Positioned right beside the IP network pill with a clean SVG stopwatch icon.
+  * Positioned right beside the IP network pill with an SVG stopwatch icon.
   * Displays remaining engagement time or sprint countdown in compact tabular monospace digits (e.g. `CTF: 06d 23h 45m` or `24:59`).
   * Real-time status badges: `LIVE`, `URGENT` (< 1 hour remaining), `EXPIRED`, or `SPRINT`.
   * Click the pill to open the **Interactive Popover Card**:
@@ -70,28 +73,28 @@ Press **`S`** or **`/`** from anywhere on the page to instantly snap focus to th
 
 * **Interactive Engine Switcher Pill (`E`)**:
   Click the pill on the search bar or press `E` to cycle between search backends:
-  * 🌐 **Google** (Primary clearnet web index)
-  * 🦆 **DuckDuckGo** (Untracked privacy search)
-  * 🧅 **Torch (.onion)** (Oldest Tor dark web search engine)
-  * 🛡️ **Ahmia Tor Search** (Clearnet gateway for hidden services)
-  * 🧅 **DuckDuckGo Onion** (Tor hidden service mirror)
-  * 🦁 **Brave Search** (Independent privacy index)
-  * ⚡ **Startpage** (Private Google results without profiling)
-  * 🤖 **DeepSeek AI** (Advanced reasoning & code assistant)
+  * Google (Primary clearnet web index)
+  * DuckDuckGo (Untracked privacy search)
+  * Torch (.onion) (Oldest Tor dark web search engine)
+  * Ahmia Tor Search (Clearnet gateway for hidden services)
+  * DuckDuckGo Onion (Tor hidden service mirror)
+  * Brave Search (Independent privacy index)
+  * Startpage (Private Google results without profiling)
+  * DeepSeek AI (Advanced reasoning and code assistant)
 * **Built-in Security Bangs & Jump Shortcuts**:
-  * `!cve <id>` — Lookup vulnerabilities on CVE Details & NVD
-  * `!shodan <query>` — Search Shodan internet intelligence
-  * `!edb <query>` — Search Exploit-DB for verified exploits
-  * `!ghdb <query>` — Search the Google Hacking Database
-  * `!payloads <query>` — Search PayloadsAllTheThings
-  * `!gtfo <binary>` — GTFOBins Unix privilege escalation commands
-  * `!ht <query>` — Search HackTricks pentesting encyclopedia
-  * `!ps <query>` — PortSwigger Web Security Academy lookups
-  * `!dork <query>` — Formulate and execute a raw Google Dork
-  * `!dorkui` — Open the interactive Dork Builder modal
-  * `!site <domain>` — Scoped domain query (`site:<domain>`)
-  * `!filetype <ext> <domain>` — Filetype exposure query (`site:<domain> filetype:<ext>`)
-* **Autocomplete & Predictive Cyber History**:
+  * `!cve <id>` - Lookup vulnerabilities on CVE Details & NVD
+  * `!shodan <query>` - Search Shodan internet intelligence
+  * `!edb <query>` - Search Exploit-DB for verified exploits
+  * `!ghdb <query>` - Search the Google Hacking Database
+  * `!payloads <query>` - Search PayloadsAllTheThings
+  * `!gtfo <binary>` - GTFOBins Unix privilege escalation commands
+  * `!ht <query>` - Search HackTricks pentesting encyclopedia
+  * `!ps <query>` - PortSwigger Web Security Academy lookups
+  * `!dork <query>` - Formulate and execute a raw Google Dork
+  * `!dorkui` - Open the interactive Dork Builder modal
+  * `!site <domain>` - Scoped domain query (`site:<domain>`)
+  * `!filetype <ext> <domain>` - Filetype exposure query (`site:<domain> filetype:<ext>`)
+* **Autocomplete & Predictive History**:
   * Type `/` to browse built-in commands with live arrow-key navigation and `Tab` completion.
 
 ---
@@ -119,7 +122,7 @@ An integrated offensive intelligence workstation accessible via the bottom dock,
   * **Document Exposures**: Resumes, CVs, biography briefs (`filetype:pdf`, `filetype:docx`).
   * **Paste & Credential Dumps**: Search Pastebin, JustPaste, and paste mirrors for leaked data.
 * **1-Click External OSINT Pivots**:
-  * Direct launchers to **WhatsMyName** (500+ site username scanner), **IntelX**, **Wayback Machine**, **Namechk**, and **LinkedIn Directory**.
+  * Direct launchers to WhatsMyName (500+ site username scanner), IntelX, Wayback Machine, Namechk, and LinkedIn Directory.
 * **Investigation Evidence & Notes Log**:
   * Record findings with Target, Evidence Source URL, Verification Status (`CONFIRMED`, `UNVERIFIED`, `FALSE POSITIVE`), and notes.
   * Complete export and import of saved queries and evidence as JSON (`google-dorks-backup.json`).
@@ -132,7 +135,7 @@ Every widget can be freely positioned, resized, or customized on the grid:
 
 * **Arrange Mode (`M` or `R`)**:
   * Drag widget headers to position cards anywhere on the grid.
-  * Click the resize icon or drag the bottom-right corner grip to cycle between **Compact (1×1)**, **Wide (2×1)**, **Tall (1×2)**, **Large (2×2)**, or **Full Width (4×2)**.
+  * Click the resize icon or drag the bottom-right corner grip to cycle between **Compact (1x1)**, **Wide (2x1)**, **Tall (1x2)**, **Large (2x2)**, or **Full Width (4x2)**.
 * **Available Widget Suite**:
   1. **Countdown & Sprint Timer**:
      * **Deadline Mode**: Set custom target date/time (CTFs, certifications, exam deadlines). Displays 4 digital time cards (`DAYS`, `HOURS`, `MINS`, `SECS`), elapsed progress track, and urgency glow.
@@ -141,7 +144,7 @@ Every widget can be freely positioned, resized, or customized on the grid:
   2. **Security Payloads**: Instant 1-click copy for essential XSS, SQLi, SSRF, LFI, and Reverse Shell strings.
   3. **Encoder / Decoder**: Live bi-directional conversions for Base64, URL Encode, Hex, and SHA-256 hashes.
   4. **Common Ports & Protocols**: Quick-reference table of common networking ports, standard services, and default credentials.
-  5. **Subnets & CIDR Calculator**: Input any IP/CIDR (e.g. `192.168.1.0/24`) to get network address, broadcast, usable range, and host count.
+  5. **Subnets & CIDR Calculator**: Input any IP/CIDR (e.g. `10.0.0.0/24`) to get network address, broadcast, usable range, and host count.
   6. **CVSS v3.1 Calculator**: Interactive base metric scoring with instant CVSS score calculation and vector string generator.
   7. **User-Agent & Header Switcher**: Spoof browser User-Agents (Googlebot, Burp Suite, Mobile, Custom) with declarativeNetRequest header rules.
   8. **Notes Scratchpad**: Lightweight local notepad for engagement scopes, payloads, and credentials.
@@ -197,7 +200,7 @@ Press **`?`** or **`H`** to summon the hotkey cheatsheet HUD:
 | `D` | **Cycle Theme** | Instant swap between Charcoal Glass, OLED Midnight, and Light |
 | `Q` | **Next Principle** | Cycle to next security quote |
 | `C` | **Copy Principle** | Copy active quote to clipboard |
-| `1` – `6` | **Dock Flyouts** | Trigger bottom dock menus (Search, GitHub, Cheats, Lookups, AppSec, Decoders) |
+| `1` - `6` | **Dock Flyouts** | Trigger bottom dock menus (Search, GitHub, Cheats, Lookups, AppSec, Decoders) |
 | `Esc` | **Dismiss / Close** | Close any open modal, popover, drawer, or search focus |
 
 ---
@@ -206,4 +209,10 @@ Press **`?`** or **`H`** to summon the hotkey cheatsheet HUD:
 
 * **100% Offline-First Architecture**: Operates directly inside your browser. No external telemetry, tracking scripts, or analytics.
 * **Zero Third-Party CDNs**: All fonts, SVGs, styles, and scripts are bundled locally within the extension to ensure strict adherence to Content Security Policy (CSP).
-* **Safe Storage**: Notes, settings, and saved dorks stay in your local browser profile (`chrome.storage.local`).
+* **Safe Storage**: Notes, settings, and saved dorks stay strictly in your local browser profile (`chrome.storage.local`).
+
+---
+
+## License
+
+MIT License - Copyright (c) 2026 [kakaxh1](https://github.com/Kakaxh1/New-Tab-Extension).

@@ -309,8 +309,8 @@ const DorkService = (() => {
   ];
 
   let currentScopeDomain = 'example.com';
-  let currentPersonTarget = 'John Doe';
-  let currentHandleTarget = 'johndoe';
+  let currentPersonTarget = 'Target Person';
+  let currentHandleTarget = 'targetuser';
   let investigationNotes = [];
   let customTemplates = [];
   let favoriteIds = [];
@@ -328,8 +328,8 @@ const DorkService = (() => {
   async function init() {
     if (isInitialized) return;
     currentScopeDomain = await StorageService.get('dorkScopeDomain', 'example.com');
-    currentPersonTarget = await StorageService.get('dorkPersonTarget', 'John Doe');
-    currentHandleTarget = await StorageService.get('dorkHandleTarget', 'johndoe');
+    currentPersonTarget = await StorageService.get('dorkPersonTarget', 'Target Person');
+    currentHandleTarget = await StorageService.get('dorkHandleTarget', 'targetuser');
     investigationNotes = await StorageService.get('osintNotes', []);
     customTemplates = await StorageService.get('customDorks', []);
     favoriteIds = await StorageService.get('dorkFavorites', []);
@@ -348,22 +348,22 @@ const DorkService = (() => {
   }
 
   function getPersonTarget() {
-    return currentPersonTarget || 'John Doe';
+    return currentPersonTarget || 'Target Person';
   }
 
   async function setPersonTarget(name) {
-    currentPersonTarget = (name || '').trim() || 'John Doe';
+    currentPersonTarget = (name || '').trim() || 'Target Person';
     await StorageService.set('dorkPersonTarget', currentPersonTarget);
     return currentPersonTarget;
   }
 
   function getHandleTarget() {
-    return currentHandleTarget || 'johndoe';
+    return currentHandleTarget || 'targetuser';
   }
 
   async function setHandleTarget(handle) {
     const clean = (handle || '').trim().replace(/^@/, '');
-    currentHandleTarget = clean || 'johndoe';
+    currentHandleTarget = clean || 'targetuser';
     await StorageService.set('dorkHandleTarget', currentHandleTarget);
     return currentHandleTarget;
   }
