@@ -1,308 +1,209 @@
-# VAPT Minimal New Tab Extension (Manifest V3)
+# VAPT Minimal New Tab — Cybersecurity & Recon Dashboard
 
-A minimalist, responsive cybersecurity and VAPT-themed New Tab dashboard for Google Chrome, engineered with dark glassmorphism, responsive grid widgets, command-driven search, and authentic penetration testing principles.
+A sleek, minimalist, cybersecurity-themed New Tab extension for Google Chrome. Engineered with dark glassmorphism, responsive widget grid architecture, command-driven search, and specialized penetration testing & OSINT reconnaissance modules.
 
 ---
 
-## Installation Guide
+## Quick Start / Installation
 
-1. Open **Google Chrome**.
-2. Navigate to `chrome://extensions` in the address bar.
-3. Enable **Developer mode** toggle in the top-right corner.
-4. Click **Load unpacked** in the top-left corner.
-5. Select this project directory:
-   ```
+1. Open **Google Chrome** and navigate to `chrome://extensions/`.
+2. Enable the **Developer mode** toggle in the top-right corner.
+3. Click **Load unpacked** in the top-left corner.
+4. Select this folder:
+   ```text
    d:\Docs\Bhavya\Extention\New Tabs
    ```
-6. Open a new tab (`Ctrl + T` or `Cmd + T`). Your custom VAPT dashboard will appear immediately.
+5. Open a new tab (`Ctrl + T` or `Cmd + T`) to launch your VAPT dashboard immediately.
 
 ---
 
-## How to Reload After Changes
+## Visual Design & Aesthetics
 
-When you make changes to HTML, CSS, or JavaScript:
-1. Go to `chrome://extensions`.
-2. Locate **VAPT Minimal New Tab**.
-3. Click the circular **Reload** icon on the extension card.
-4. Refresh any open New Tab (`F5` or `Ctrl + R`).
-
----
-
-## Extension Architecture
-
-```
-/
-├── manifest.json        # Chrome MV3 manifest (url override for newtab)
-├── newtab.html          # Semantic HTML layout, modals, search, and dock
-├── css/
-│   ├── main.css         # Design tokens, theme variables, glassmorphism, search, modals
-│   ├── widgets.css      # Responsive grid, widget card styling, animations, typography
-│   └── dorks.css        # Google Dorking & Person OSINT workbench and evidence styling
-├── js/
-│   ├── storage.js       # Unified chrome.storage.local wrapper with localStorage fallback
-│   ├── clock.js         # Real-time digital clock (12h/24h, zero layout shift)
-│   ├── date.js          # Stacked calendar date indicator (MON / 5 / OCT)
-│   ├── quotes.js        # VAPT principle quotes engine with smooth fade transitions
-│   ├── search.js        # Search controller with '/' shortcut, commands & bangs
-│   ├── dorks.js         # Google Dorking & Person OSINT engine, templates & notes manager
-│   ├── widgets.js       # Widget registry, dynamic add/remove/reorder/resize system
-│   ├── todo.js          # Slide-out To-Do list panel controller & task manager
-│   └── app.js           # Main application coordinator, settings panel & themes
-└── assets/
-    ├── icon16.png
-    ├── icon32.png
-    ├── icon48.png
-    └── icon128.png
-```
+* **Cyberpunk Glassmorphism**: Tailored HSL color palette, translucent frosted glass cards with multi-layer background blur, high-contrast typography (Inter & monospace digits), and smooth micro-interactions.
+* **Three Curated Themes**:
+  * **Charcoal Glass (Default)**: Deep blue-gray glass with vibrant Google Blue/Cyan telemetry accents.
+  * **OLED Midnight**: Pitch-black surfaces designed for maximum battery savings and ultra-high contrast.
+  * **Frosted Light**: Clean slate-white glass aesthetic with soft drop shadows and crisp dark typography.
+  *(Toggle instantly with `D` or via Settings).*
+* **Dynamic Wallpaper & Ambient Engine**:
+  * **Unsplash Curated Stream**: Dynamic high-resolution wallpapers across Cyberpunk, Tech, Minimal, Tokyo Night, and Space categories with 1-click shuffle (`B`).
+  * **Custom Image / URL**: Load any external wallpaper URL or upload local images stored offline.
+  * **Cyber Gradients**: Solid colors and built-in hacker gradients (Cyber Void, Deep Matrix, Carbon Fiber, Crimson Eclipse).
+  * **Visual Post-Processing**: Real-time adjustable sliders for Background Darkness (0–95%), Frosted Blur (0–25px), Vignette Shadows, and subtle 3D Parallax mouse depth.
 
 ---
 
-## Features & Usage
+## Key UI & UX Features
 
-### 1. Right-Side To-Do Panel (Tasks & Scope Tracker)
-- **Instant Drawer**: Click the checklist checkmark icon in the top-right header to slide out the side panel.
-- **Task Management**:
-  - Add tasks with `Enter` or the `+` button.
-  - Check / uncheck items with custom minimal checkbox buttons.
-  - Hover over any item to reveal the delete action.
-  - Real-time counter tracks progress (e.g., `1/4`).
-- **Filters**: Quickly filter by **All**, **Active**, and **Completed**.
-- **Batch Action**: Click **Clear Completed** to purge finished tasks.
-- **Keyboard Dismissal**: Press `Escape` or click the frosted backdrop overlay to close.
-- **Persistence**: All tasks are automatically saved to `chrome.storage.local` with `localStorage` fallback.
+### 1. Header Telemetry HUD
 
-### 2. Welcome Greeting ("WELCOME, KKAXH1")
-- Prominently positioned greeting banner directly matching the visual screenshot reference composition.
-- Default callsign/username: **KKAXH1**.
-- Fully configurable in Settings with support for static "WELCOME" or dynamic time-of-day greetings ("GOOD MORNING", "GOOD AFTERNOON", "GOOD EVENING").
-- Live telemetry indicator with active operational status.
+Located across the top navigation bar for zero-click operational awareness:
 
-### 3. Center Search Bar
-- **Instant Focus**: Press `S` or `/` anywhere on the page (or click the `S` badge on the search bar) to jump focus to the search bar.
-- **Configurable Default Engine**: Choose between **Google**, **DuckDuckGo**, **Torch (Dark Web)**, **Ahmia (Clearnet Tor)**, **Brave**, **Startpage**, or **DeepSeek AI** in Settings.
-- **Interactive Engine Pill**: Click the pill on the search bar to cycle between search engines instantly.
-- **Slash Commands & Bangs**:
-  - `/duckduckgo <query>` or `!ddg` — Search DuckDuckGo (privacy search)
-  - `/torch <query>` or `!torch` — Search Torch dark web index (`.onion`)
-  - `/ahmia <query>` or `!ahmia` / `!onion` — Search Ahmia Tor clearnet gateway
-  - `/ddgonion <query>` or `!ddgo` — Search DuckDuckGo Tor hidden service mirror
-  - `/brave <query>` or `!brave` — Search Brave Private Search
-  - `/startpage <query>` or `!startpage` — Search Startpage (untracked Google results)
-  - `/google <query>` or `!g` — Search Google
-  - `/github <query>` or `!gh` — Search GitHub repositories or code
-  - `/youtube <query>` or `!yt` — Search YouTube
-  - `/chatgpt <query>` or `!ai` — Prompt ChatGPT
-  - `/deepseek <query>` or `!ds` — Prompt DeepSeek AI reasoning assistant
-  - `/dork <query>` or `!dork` — Launch Google search using specified dork query
-  - `/dorkui` or `!dorkui` — Open interactive Google Dork Builder modal
-  - `/ghdb <query>` or `!ghdb` — Search the Google Hacking Database (Exploit-DB)
-  - `/site <domain>` or `!site` — Quick site-scoped Google query (`site:<domain>`)
-  - `/filetype <ext> <domain>` or `!filetype` / `!ft` — Quick filetype query (`site:<domain> filetype:<ext>`)
-  - `/osint <query>` or `!osint` — OSINT reconnaissance search on Google
-  - `/person <name>` or `!person` — Person OSINT profile discovery across social platforms
-  - `/alias <handle>` or `!alias` / `!handle` — Username & alias cross-platform reconnaissance
-- **Security Bangs**:
-  - `!cve <id>` — Lookup vulnerability on CVE Details / MITRE
-  - `!shodan <query>` — Reconnaissance query on Shodan
-  - `!edb <query>` — Exploit Database lookup
-  - `!ps <query>` — Search PortSwigger Web Security Academy
-  - `!payloads <query>` — PayloadsAllTheThings repository search
-  - `!gtfo <query>` — GTFOBins Unix binaries lookup
-  - `!ht <query>` — HackTricks pentesting book search
-- **Command Hints & Predictive Autocomplete**: Live suggestions for privacy and dark web queries, cyber security terms, and history with `Tab` auto-fill.
+* **Active Public IP & VPN Leak Checker (`I`)**:
+  * Real-time network indicator with status dot:
+    * 🟢 **Secure / Public Network**
+    * 🔵 **Protected VPN / Proxy / Datacenter**
+    * 🔴 **Network Leak / Offline**
+  * Click to reveal the **Network Telemetry Popover**: inspects your public IPv4/IPv6, ISP/Organization, Country, City, and provides a 1-click **Copy IP** button.
+* **Compact Header Countdown & Sprint Timer**:
+  * Positioned right beside the IP network pill with a clean SVG stopwatch icon.
+  * Displays remaining engagement time or sprint countdown in compact tabular monospace digits (e.g. `CTF: 06d 23h 45m` or `24:59`).
+  * Real-time status badges: `LIVE`, `URGENT` (< 1 hour remaining), `EXPIRED`, or `SPRINT`.
+  * Click the pill to open the **Interactive Popover Card**:
+    * Full precision countdown (`00d 00h 00m 00s`).
+    * Animated gradient progress bar showing percentage of time elapsed.
+    * 1-click **Start / Pause** button for focus sprints.
+    * 1-click **Configure Target** button to jump directly to the Countdown widget.
+* **Quick Navigation Controls**:
+  * **`+ Add widget` (`W` or `A`)**: Opens the modular Widget Library modal.
+  * **`Arrange` (`M` or `R`)**: Toggles freeform drag-and-drop grid repositioning.
+  * **`Wallpaper` (`P`)**: Opens the background and overlay settings drawer.
+  * **`Tasks` (`T`)**: Slides open the right-side To-Do drawer.
+  * **`Shortcuts` (`?` or `H`)**: Opens the keyboard cheatsheet HUD.
+  * **`Settings` (`O` or `,`)**: Opens the operator preferences slide-over.
 
-### 4. Console Hotkeys & Shortcuts
-Press `?` or `H` anywhere on the new tab page to summon the interactive **Console Hotkeys HUD**:
+---
 
-| Key | Action | Description |
+### 2. Center Omni-Search HUD
+
+Press **`S`** or **`/`** from anywhere on the page to instantly snap focus to the search bar.
+
+* **Interactive Engine Switcher Pill (`E`)**:
+  Click the pill on the search bar or press `E` to cycle between search backends:
+  * 🌐 **Google** (Primary clearnet web index)
+  * 🦆 **DuckDuckGo** (Untracked privacy search)
+  * 🧅 **Torch (.onion)** (Oldest Tor dark web search engine)
+  * 🛡️ **Ahmia Tor Search** (Clearnet gateway for hidden services)
+  * 🧅 **DuckDuckGo Onion** (Tor hidden service mirror)
+  * 🦁 **Brave Search** (Independent privacy index)
+  * ⚡ **Startpage** (Private Google results without profiling)
+  * 🤖 **DeepSeek AI** (Advanced reasoning & code assistant)
+* **Built-in Security Bangs & Jump Shortcuts**:
+  * `!cve <id>` — Lookup vulnerabilities on CVE Details & NVD
+  * `!shodan <query>` — Search Shodan internet intelligence
+  * `!edb <query>` — Search Exploit-DB for verified exploits
+  * `!ghdb <query>` — Search the Google Hacking Database
+  * `!payloads <query>` — Search PayloadsAllTheThings
+  * `!gtfo <binary>` — GTFOBins Unix privilege escalation commands
+  * `!ht <query>` — Search HackTricks pentesting encyclopedia
+  * `!ps <query>` — PortSwigger Web Security Academy lookups
+  * `!dork <query>` — Formulate and execute a raw Google Dork
+  * `!dorkui` — Open the interactive Dork Builder modal
+  * `!site <domain>` — Scoped domain query (`site:<domain>`)
+  * `!filetype <ext> <domain>` — Filetype exposure query (`site:<domain> filetype:<ext>`)
+* **Autocomplete & Predictive Cyber History**:
+  * Type `/` to browse built-in commands with live arrow-key navigation and `Tab` completion.
+
+---
+
+### 3. Google Dorking & Person OSINT Workbench
+
+An integrated offensive intelligence workstation accessible via the bottom dock, search commands (`/dorkui`), or the dashboard widget:
+
+* **Interactive Dork Builder**:
+  * One-click operator chips for `site:`, `inurl:`, `intitle:`, `filetype:`, `intext:`, `allintitle:`, `before:`, `after:`, `OR`, `-`, and exact quoted phrases `""`.
+  * Dynamic target substitution: define your target domain once (`{DOMAIN}`) and watch all queries auto-populate.
+  * Live compiled query preview with 1-click **Copy Query** and **Open in Google**.
+* **Pre-compiled VAPT Dork Library**:
+  * **Domain Recon**: Subdomains (`-www`), public PDFs, API schemas, technology footprints.
+  * **Public Docs & Exposures**: Leaked spreadsheets (`.xlsx`, `.csv`), configuration guides, OpenAPI docs.
+  * **Auth & Gateways**: Sign-in portals, admin panels, SSO/OAuth endpoints, server stack traces.
+  * **Security Misconfigurations**: Public backups (`.bak`, `.old`), directory listings (`intitle:"index of"`), environment files (`.env`).
+  * **Vulnerability Research**: CVE references, vendor advisories, GitHub PoCs.
+* **Dedicated Person OSINT Module**:
+  * Configure **Target Name** (`{PERSON}`) and **Handle/Username** (`{HANDLE}`).
+  * **Social Profile Discovery**: Cross-platform reconnaissance across X, LinkedIn, Instagram, Facebook.
+  * **Professional Dossiers**: Career history, recommendations, and roles via LinkedIn.
+  * **Username & Alias Pivoting**: Search Reddit, Telegram, Medium, GitHub, YouTube, TikTok.
+  * **Code & Commits**: Git commits, public gists, and repository author searches.
+  * **Document Exposures**: Resumes, CVs, biography briefs (`filetype:pdf`, `filetype:docx`).
+  * **Paste & Credential Dumps**: Search Pastebin, JustPaste, and paste mirrors for leaked data.
+* **1-Click External OSINT Pivots**:
+  * Direct launchers to **WhatsMyName** (500+ site username scanner), **IntelX**, **Wayback Machine**, **Namechk**, and **LinkedIn Directory**.
+* **Investigation Evidence & Notes Log**:
+  * Record findings with Target, Evidence Source URL, Verification Status (`CONFIRMED`, `UNVERIFIED`, `FALSE POSITIVE`), and notes.
+  * Complete export and import of saved queries and evidence as JSON (`google-dorks-backup.json`).
+
+---
+
+### 4. Modular Dashboard Widgets & Freeform Grid
+
+Every widget can be freely positioned, resized, or customized on the grid:
+
+* **Arrange Mode (`M` or `R`)**:
+  * Drag widget headers to position cards anywhere on the grid.
+  * Click the resize icon or drag the bottom-right corner grip to cycle between **Compact (1×1)**, **Wide (2×1)**, **Tall (1×2)**, **Large (2×2)**, or **Full Width (4×2)**.
+* **Available Widget Suite**:
+  1. **Countdown & Sprint Timer**:
+     * **Deadline Mode**: Set custom target date/time (CTFs, certifications, exam deadlines). Displays 4 digital time cards (`DAYS`, `HOURS`, `MINS`, `SECS`), elapsed progress track, and urgency glow.
+     * **Focus Sprint Mode**: Built-in timers (25m Pomodoro, 45m Recon, 60m Deep Work, 90m Marathon) with start, pause, and reset controls.
+     * Inline gear button flips to quick-config drawer with `+1h`, `+24h`, `+7d` presets.
+  2. **Security Payloads**: Instant 1-click copy for essential XSS, SQLi, SSRF, LFI, and Reverse Shell strings.
+  3. **Encoder / Decoder**: Live bi-directional conversions for Base64, URL Encode, Hex, and SHA-256 hashes.
+  4. **Common Ports & Protocols**: Quick-reference table of common networking ports, standard services, and default credentials.
+  5. **Subnets & CIDR Calculator**: Input any IP/CIDR (e.g. `192.168.1.0/24`) to get network address, broadcast, usable range, and host count.
+  6. **CVSS v3.1 Calculator**: Interactive base metric scoring with instant CVSS score calculation and vector string generator.
+  7. **User-Agent & Header Switcher**: Spoof browser User-Agents (Googlebot, Burp Suite, Mobile, Custom) with declarativeNetRequest header rules.
+  8. **Notes Scratchpad**: Lightweight local notepad for engagement scopes, payloads, and credentials.
+  9. **Interactive To-Do List**: Target checklist synchronized with the slide-out tasks drawer.
+  10. **Digital Clock**: High-precision clock with 12h/24h toggle and zero layout jitter.
+  11. **Date Stack**: Minimalist calendar block with Day, Date, and Month.
+  12. **VAPT Principles Quote**: Curated security quotes with smooth fade transitions and 1-click clipboard copy.
+  13. **Operational Identity**: Red Team / VAPT mode badge with pulsating core orb.
+  14. **System Status**: Real-time network latency ping and browser online status.
+  15. **World Clock**: Multiple operational timezones (UTC, EST, GMT, JST).
+
+---
+
+### 5. Slide-Out Tasks & Engagement Drawer (`T`)
+
+Press **`T`** or click the checklist icon in the top-right header to toggle the side drawer:
+* Add tasks with `Enter` or the `+` button.
+* Filter by **All**, **Active**, and **Completed**.
+* Real-time task completion progress counter (e.g. `3/5 Done`).
+* Purge finished tasks with the **Clear Completed** batch button.
+* Fully persistent in local storage.
+
+---
+
+### 6. Bottom Dock Flyouts (Security Toolkit)
+
+Hover or click items on the floating bottom dock for instant access to curated security resources:
+* **Search Flyout**: Quick links to Dork Builder, GHDB, Ahmia, Torch, and GitHub Code Search.
+* **GitHub Flyout**: PayloadsAllTheThings, SecLists, PEASS-ng, Nuclei Templates, HackTricks.
+* **Cheatsheets Flyout**: GTFOBins, LOLBAS, WADComs, RevShells, HackTricks Cloud.
+* **Lookups Flyout**: Exploit-DB, Sploitus, crt.sh, BGP Hurricane Electric, Default Creds.
+* **AppSec Flyout**: PortSwigger Web Academy, OWASP WSTG, OWASP Top 10, Hack The Box.
+* **Decoders Flyout**: CyberChef, CrackStation, JWT.io, Hash Identifier.
+
+---
+
+### 7. Keyboard Navigation & Shortcuts Cheatsheet
+
+Press **`?`** or **`H`** to summon the hotkey cheatsheet HUD:
+
+| Hotkey | Action | Description |
 | :--- | :--- | :--- |
-| `S` or `/` | **Focus Search** | Jump focus directly into the main search input |
-| `E` | **Cycle Search Target** | Cycle between Google, DuckDuckGo, Torch, Ahmia, Brave, Startpage, and DeepSeek AI |
-| `Ctrl + K` or `K` | **Command Palette** | Quick launcher for encoders (Base64, Hex, Hash, URL), actions, and shortcuts |
-| `T` | **Tasks Drawer** | Slide open / close the target To-Do List panel |
-| `O` or `,` | **Settings** | Open Dashboard Settings slide-over |
-| `B` | **Shuffle Wallpaper** | Fetch and apply a fresh high-resolution cyber wallpaper from Unsplash |
-| `P` | **Wallpaper Panel** | Open the wallpaper and background customizer panel |
-| `I` | **IP Telemetry** | Inspect public IP address, ISP, location, and VPN/leak telemetry |
-| `W` or `A` | **Add Widget** | Open the 17-tool modular Widget Library catalog |
-| `M` or `R` | **Arrange Widgets** | Toggle freeform drag-and-drop / resize arrange mode |
-| `D` | **Cycle Theme** | Instant cycle between Charcoal Glass, OLED Midnight, and Frosted Light themes |
-| `Q` | **Next Principle** | Cycle to the next VAPT / security principle quote |
-| `C` | **Copy Principle** | Copy the active security principle directly to the clipboard |
-| `1` – `6` | **Dock Flyouts** | Instantly trigger Bottom Dock popovers (Search, GitHub, Cheats, Lookups, AppSec, Decoders) |
-| `?` or `H` | **Shortcuts HUD** | Toggle the visual Keyboard Shortcuts modal cheatsheet |
-| `Esc` | **Dismiss / Clear** | Close any active modal, panel, drawer, or clear search focus |
-
-### 5. Live Widgets
-- **VAPT Identity**: Subtle pulsating blue circular orb indicator with click-to-toggle `RED TEAM` / `VAPT` modes and operational status dot.
-- **Digital Clock**: High-precision `HH:MM` time display with `AM/PM` or 24-hour mode.
-- **Date Stack**: Minimalist calendar block displaying Day of Week, Day of Month, and Month.
-- **VAPT Principles Quote**: Click anywhere on the quote to smoothly transition to the next principle. Click copy to copy the principle to your clipboard.
-
-### 5. Widget Management ("+ Add widget")
-- Located in the **top-left corner of the navigation bar** for 1-click access to the Widget Library modal.
-- Toggle any of the 17 modular widgets:
-  1. *Status* (Operational readiness indicator and mode switch)
-  2. *Clock* (Digital clock with 12/24-hour display)
-  3. *Date* (Current day, date, and month indicator)
-  4. *Quotes* (Security and development principles with 1-click copy)
-  5. *To-Do List* (Embedded target checklists with 2-way sync to slide-out drawer)
-  6. *Payloads* (Quick-copy pentest payloads for XSS, SQLi, RevShells)
-  7. *Encoder* (Base64, URL, Hex, and SHA-256 encoder/decoder)
-  8. *Ports* (Common ports and service cheatsheet)
-  9. *Subnets* (CIDR to mask and subnet calculator)
-  10. *CVSS Calculator* (CVSS v3.1 severity calculator with vector string export)
-  11. *Quick Links* (Direct bookmarks to pentest tools and resources)
-  12. *Notes* (Scratchpad for target notes and credentials)
-  13. *Countdown* (Countdown timer for deadlines and targets)
-  14. *Weather* (Current weather and temperature monitor)
-  15. *World Clock* (UTC, EST, GMT, and JST operational timezones)
-  16. *GitHub* (Popular security tools and repositories)
-  17. *System Status* (Network connectivity and latency monitor)
-  18. *User-Agent & Headers* (Browser session default User-Agent override across all websites via declarativeNetRequest with Client Hints suppression and navigator.userAgent DOM synchronization)
-  19. *Google Dorks & OSINT Recon* (Interactive query builder with scope domain substitution, mini operator chips, categorized reconnaissance templates, and Google search launcher)
-- **Multi-Dimensional Grid Resizing & Custom Spans (1x1 to 4x5, Full Bar)**:
-  - **Visual Grid Matrix Picker**: Interactive 4×5 tile matrix in the resize menu. Hover over any cell (e.g. 2×3) to preview the bounding box and click to apply immediately.
-  - **Dimension Steppers**: Incremental Width (1 to 4 cols, Full) and Height (1 to 6 rows) controls for exact numeric span tuning.
-  - **Quick Dimension Presets**: Instant 1-click buttons for `1×1`, `2×1`, `1×2`, `2×2`, `1×3`, `2×3`, `4×2`, `4×5`, and `Full Width`.
-  - **Corner Drag Handle**: Drag the bottom-right corner grip on any card to fluidly adjust columns and rows in real-time, or click to cycle popular dimensions.
-  - **Adaptive Content**: All cards fluidly adjust layout, multi-column subgrids, textareas, and scrollbars based on their assigned columns and rows.
-  - Hover over any card for **Reordering** (`<-` / `->`) and **Dismissal** (`x`).
-
-### 6. Customization & Settings (Gear Icon)
-- **Operator Name**: Customize your display handle (default: `kkaxh1`).
-- **Welcome Subtext / Status**: Customize the subtitle text beneath your callsign (default: `OPERATIONAL ENVIRONMENT READY`, e.g. `TARGET: 10.10.10.145`, `SCOPE: *.INTERNAL.CORP`, or any custom mission status).
-- **Greeting Style**: Choose between `Welcome [Name]` or dynamic time-of-day greetings (`Good Morning` / `Good Afternoon` / `Good Evening`).
-- **Default Search Engine**: Configure default search engine (Google, DuckDuckGo, Torch Dark Web, Ahmia Tor Index, Brave, Startpage, DeepSeek AI).
-- **Appearance Themes**: Charcoal Glass (default), OLED Midnight, Frosted Minimal Light.
-- **Time Format**: 12-hour (with AM/PM) or 24-hour format.
-- **Accent Highlight**: Custom color picker to tune the accent glow (Google Blue `#4285F4`, Cyber Cyan, Emerald, etc.).
-- **Surface Opacity**: Adjust card translucency from 20% to 95%.
-  - **Background Architecture**:
-    - **Sources**:
-      - **Unsplash**: Direct dynamic Unsplash search and high-resolution curation with live API and offline fallback pool.
-      - **Custom URL**: Direct URL input for any external wallpaper or CDN image.
-      - **Local Image**: Drag-and-drop or file picker uploading local pictures stored securely offline in `chrome.storage.local`.
-      - **Solid / Gradient**: Minimalist solid colors and 6 cybersecurity dark gradients (Cyber Void, Deep Matrix, Midnight Neon, Abyssal Navy, Carbon Fiber, Crimson Eclipse) plus custom color picker.
-    - **Unsplash Options**:
-      - **Search**: Custom keyword query input (e.g. `cyber security`, `hacker`, `matrix`, `space`).
-      - **Category**: Dropdown with curated presets (`Technology`, `Cyberpunk`, `Dark Minimal`, `Architecture`, `Space`, `Nature`, `Abstract`, `Tokyo Night`).
-      - **Mode**:
-        - `Random`: Statically holds chosen image until manually shuffled.
-        - `Daily`: Automatically rotates image once every 24 hours based on calendar date.
-        - `On New Tab`: Automatically shuffles and selects a fresh wallpaper every time a new tab is opened.
-      - **[ Shuffle Background ]**: 1-click instant randomize button with rotating loading feedback.
-    - **Overlay Controls**:
-      - **Darkness**: Range slider (0% to 95%, default 65%) with real-time numeric readout for optimal widget contrast.
-      - **Blur**: Range slider (0px to 25px, default 8px) with real-time numeric readout for frosted backdrop depth.
-    - **Effects**:
-      - **Glass readability**: Enhanced card backdrop filter saturation (180%) and deep glassmorphic contrast.
-      - **Vignette**: Subtle radial edge-shadow gradient drawing focus inward to widgets.
-      - **Parallax**: Dynamic cursor tracking translating wallpaper layer on mouse movement for 3D depth.
-      - **Motion**: Subtle Ken Burns slow breathing zoom animation (`@keyframes kenBurnsMotion`).
-    - **Photo Info & Attribution**:
-      - **Show photographer**: Bottom-left glassmorphic pill with photographer name and direct profile link.
-      - **Show "Unsplash" attribution**: Includes official Unsplash attribution link honoring platform terms.
-- **Quote Category**: Filter quotes by *All*, *Authentication & Access*, *Business Logic*, *Reconnaissance*, or *Exploitation*.
-- **Reset Layout**: Instantly restore default widget arrangement.
-
-### 7. Bottom Dock Flyout Lists (Security Consultant Toolkit)
-Hovering or clicking any dock item reveals a curated glassmorphic flyout card tailored for penetration testing & consulting workflows:
-- **Search**: Google Search, Google Dork Builder (interactive OSINT modal), Google Hacking Database (GHDB dorks), GitHub Code Search, DuckDuckGo (clearnet & .onion), Torch Search Engine (.onion), Ahmia Tor Search, and Brave Search.
-- **GitHub**: PayloadsAllTheThings, SecLists, PEASS-ng (LinPEAS/WinPEAS), Nuclei Templates, HackTricks Source, and GitHub Home.
-- **Cheatsheets**: HackTricks Cloud & Pentest, GTFOBins (Linux privesc & SUID), LOLBAS (Windows Living Off The Land), WADComs (Active Directory commands), and RevShells Generator.
-- **Lookups**: Exploit-DB (verified exploits & shellcode), Sploitus (0-days & GitHub PoCs), crt.sh (certificate transparency subdomains), Default Credentials Lookup, and BGP/ASN Hurricane Electric IP scoping.
-- **AppSec**: PortSwigger Web Academy, OWASP Web Security Testing Guide (WSTG Checklist), OWASP Top 10, and Hack The Box.
-- **Decoders**: CyberChef App, CrackStation Hash Lookup (MD5/SHA1/SHA256), JWT.io Token Debugger, and Hash Identifier.
-
-### 8. Google Dorking & OSINT Reconnaissance Module
-An offline-first reconnaissance workbench embedded into the VAPT New Tab Dashboard:
-- **Interactive Dork Builder (`/dorkui`)**:
-  - Clickable operator chips for `site:`, `filetype:`, `intitle:`, `inurl:`, `intext:`, `allintitle:`, `allinurl:`, `allintext:`, `before:`, `after:`, `OR`, `-`, and exact quoted phrases `""`.
-  - Dynamic Target Scope Domain management with `{DOMAIN}` replacement in templates.
-  - Live compiled preview and one-click **Copy Query** and **Open in Google**.
-  - In-scope warning notice when formulating queries targeting sensitive exposures, credentials, or logs.
-- **Categorized VAPT Dork Library**:
-  - **Domain Recon**: Indexed pages, Subdomain discovery (`-www`), public PDF documents, technology and API references.
-  - **Public Docs & Exposure**: Spreadsheets (`.xls`, `.xlsx`, `.csv`), configuration guides, OpenAPI/Swagger references, and server log files.
-  - **Authentication & Mapping**: Login & sign-in portals, admin dashboards, SSO/OAuth/SAML references, stack traces & error messages.
-  - **Security & Misconfiguration**: Public backups (`.bak`, `.old`), directory listings (`intitle:"index of"`), environment files (`.env`, `config.php`), sensitive data keywords.
-  - **Vulnerability Research**: CVE references (NVD, MITRE), vendor security advisories, GitHub proof-of-concept repositories.
-- **Saved Queries & Scope Backup**:
-  - Save custom dorks locally with custom names and descriptions.
-  - Mark favorite templates for rapid access.
-  - Import and export user-created templates as sanitized JSON (`google-dorks-backup.json`).
-- **Slash Commands & Bangs**:
-  - `/dork <query>` or `!dork` — Launch Google search with dork
-  - `/dorkui` or `!dorkui` — Open Dork Builder Modal
-  - `/ghdb <query>` or `!ghdb` — Search Google Hacking Database
-  - `/site <domain>` or `!site` — Scoped domain query
-  - `/filetype <ext> <domain>` or `!filetype` — Scoped filetype search
-  - `/osint <query>` or `!osint` — OSINT search on Google
-
-### 9. Dedicated Person OSINT & Digital Footprint Module
-A dedicated offensive intelligence suite engineered directly into the Google Dorking workbench, Search flyout, and Widget Library:
-- **Unified Target Scope Controls**:
-  - Dynamically configure **DOMAIN** (`{DOMAIN}`), **PERSON** (`{PERSON}`), and **HANDLE / ALIAS** (`{HANDLE}`) in the builder header.
-  - Changes instantly propagate across all pre-compiled templates, live query preview, and widgets.
-- **Categorized Person OSINT Templates**:
-  - **Public Social-Profile Discovery**: High-confidence discovery across X (Twitter), Instagram, Facebook, and LinkedIn.
-  - **Professional Identity Research**: Target dossiers, roles, employment history, and recommendations via `site:linkedin.com/in/`.
-  - **Username & Alias Pivoting**: Cross-platform footprint reconnaissance across Reddit, Telegram, Medium, YouTube, TikTok, and GitHub.
-  - **Public Code Repositories**: Source code commits, repositories, and gist disclosures on GitHub and GitLab.
-  - **Publicly Indexed Documents**: Resumes, CVs, and biography briefs (`filetype:pdf`, `filetype:doc`, `filetype:docx`).
-  - **Domain & Organization Association**: Mentions binding the person to their target organization or employer domain.
-  - **Contact & Email Discovery**: Public emails, corporate formats (`@{DOMAIN}`), and direct contact details.
-  - **Pastebin & Credential Dumps**: Plaintext dumps, leaks, and disclosures across Pastebin, JustPaste, and paste mirrors.
-  - **Mentions, Interviews & Talks**: Conference appearances, podcast interviews, and news mentions.
-  - **Slide Decks & Presentations**: Uploaded decks on SlideShare, SpeakerDeck, and Prezi.
-- **Verified External OSINT Launchers (1-Click Pivot)**:
-  - **WhatsMyName**: Interactive web app checking username presence across 500+ social and web platforms.
-  - **Namechk**: Real-time username and brand identity availability checker.
-  - **GitHub Users**: Developer profile, public repositories, and commit history discovery.
-  - **LinkedIn People Directory**: Direct professional identity and executive directory search.
-  - **Intelligence X (IntelX)**: Deep search across public pastes, leaks, historical data, and archives.
-  - **Wayback Machine**: Historical web archives and deleted profile snapshots via Internet Archive.
-- **Investigation Evidence & Notes Log**:
-  - Embedded logger for recording validated findings with Target, Evidence Source URL, Verification Status, and investigative notes.
-  - **Validation Status Badges**: `CONFIRMED / VERIFIED` (Green), `UNVERIFIED` (Yellow), and `FALSE POSITIVE` (Red).
-  - One-click deletion and automatic persistence in `chrome.storage.local`.
-  - Included in unified JSON export/import backups.
+| `S` or `/` | **Focus Search** | Focus main search bar |
+| `E` | **Cycle Engine** | Switch between Google, DuckDuckGo, Torch, Ahmia, Brave, DeepSeek |
+| `Ctrl + K` or `K` | **Command Palette** | Quick action launcher for tools, themes, and encoders |
+| `T` | **Tasks Drawer** | Toggle slide-out target checklist drawer |
+| `W` or `A` | **Add Widget** | Open the Widget Library catalog |
+| `M` or `R` | **Arrange Mode** | Toggle freeform drag-and-drop widget layout |
+| `O` or `,` | **Settings** | Open dashboard settings & operator profile |
+| `B` | **Shuffle Background** | Fetch a fresh cyber wallpaper from Unsplash |
+| `P` | **Wallpaper Panel** | Configure wallpapers, blur, and contrast overlays |
+| `I` | **IP Telemetry** | Inspect public IP, VPN leak status, and network info |
+| `D` | **Cycle Theme** | Instant swap between Charcoal Glass, OLED Midnight, and Light |
+| `Q` | **Next Principle** | Cycle to next security quote |
+| `C` | **Copy Principle** | Copy active quote to clipboard |
+| `1` – `6` | **Dock Flyouts** | Trigger bottom dock menus (Search, GitHub, Cheats, Lookups, AppSec, Decoders) |
+| `Esc` | **Dismiss / Close** | Close any open modal, popover, drawer, or search focus |
 
 ---
 
-## How to Customize Quotes
+## Privacy & Security
 
-Open [`js/quotes.js`](file:///d:/Docs/Bhavya/Extention/New%20Tabs/js/quotes.js) and add your custom quotes to the `QUOTES` array:
-
-```javascript
-{
-  text: "Your customized security quote here.",
-  author: "VAPT PRINCIPLE",
-  category: "recon" // 'auth', 'logic', 'recon', 'exploit', or 'architecture'
-}
-```
-
----
-
-## How to Add a New Widget
-
-1. Open [`js/widgets.js`](file:///d:/Docs/Bhavya/Extention/New%20Tabs/js/widgets.js).
-2. Register your widget in `WIDGET_CATALOG`:
-   ```javascript
-   mywidget: {
-     id: 'mywidget',
-     title: 'Custom Tool',
-     category: 'tools',
-     description: 'Description of your tool.',
-     defaultSize: 'normal',
-     render: renderMyWidget
-   }
-   ```
-3. Implement `renderMyWidget(container)`:
-   ```javascript
-   function renderMyWidget(container) {
-     container.innerHTML = `<div class="my-custom-content">Hello Security World</div>`;
-   }
-   ```
-4. Add styles in [`css/widgets.css`](file:///d:/Docs/Bhavya/Extention/New%20Tabs/css/widgets.css) under `.widget-mywidget`.
+* **100% Offline-First Architecture**: Operates directly inside your browser. No external telemetry, tracking scripts, or analytics.
+* **Zero Third-Party CDNs**: All fonts, SVGs, styles, and scripts are bundled locally within the extension to ensure strict adherence to Content Security Policy (CSP).
+* **Safe Storage**: Notes, settings, and saved dorks stay in your local browser profile (`chrome.storage.local`).
