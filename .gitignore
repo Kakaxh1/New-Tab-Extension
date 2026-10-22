@@ -1,3 +1,7 @@
+# ==============================================================================
+# VAPT Minimal New Tab - .gitignore
+# ==============================================================================
+
 # Operating System Files
 .DS_Store
 .DS_Store?
@@ -8,10 +12,13 @@ ehthumbs.db
 Thumbs.db
 Thumbs.db:encryptable
 desktop.ini
+*.lnk
 
 # Editor & IDE Directories
 .vscode/
 .idea/
+*.sublime-project
+*.sublime-workspace
 *.suo
 *.ntvs*
 *.njsproj
@@ -20,29 +27,38 @@ desktop.ini
 *.swo
 *~
 
-# Extension Packages & Secrets
+# Extension Packages, Keys & Secrets
 *.crx
 *.pem
 *.key
 *.cert
 *.pfx
+*.token
+credentials.json
 
-# Node & Dependencies (if npm is used)
+# Build Outputs & Packaging
+dist/
+build/
+*.zip
+
+# Node & Package Managers
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 package-lock.json
 pnpm-lock.yaml
+yarn.lock
 
-# Temporary Test Files & Screenshots
+# Temporary Testing & Scratch Artifacts
 scratch/
 test_shot.png
 *.tmp
 *.bak
 *.log
 
-# Local Environments & Private Data
+# Local Environments, Cache & Private Data
 .env
 .env.local
 .env.*.local
