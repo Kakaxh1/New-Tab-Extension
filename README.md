@@ -2,7 +2,7 @@
 
 A sleek, minimalist, cybersecurity-themed New Tab dashboard extension for Google Chrome. Engineered with dark glassmorphism, responsive grid widget architecture, command-driven search, and specialized penetration testing and OSINT reconnaissance modules.
 
-Developed by [kakaxh1](https://github.com/Kakaxh1/New-Tab-Extension).
+Developed by [kakaxh1](https://github.com/Kakaxh1/New-Tab-Extension) • [Portfolio](https://bhavymorvadiya.netlify.app/).
 
 ---
 
@@ -213,6 +213,15 @@ Press **`?`** or **`H`** to summon the hotkey cheatsheet HUD:
 
 ---
 
+## Author & Developer
+
+* **Developer**: [kakaxh1](https://github.com/Kakaxh1/New-Tab-Extension)
+* **Portfolio**: [bhavymorvadiya.netlify.app](https://bhavymorvadiya.netlify.app/)
+* **Project Repository**: [github.com/Kakaxh1/New-Tab-Extension](https://github.com/Kakaxh1/New-Tab-Extension)
+
+---
+
 ## License
 
 MIT License - Copyright (c) 2026 [kakaxh1](https://github.com/Kakaxh1/New-Tab-Extension).
+
