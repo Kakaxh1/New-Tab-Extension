@@ -1,0 +1,54 @@
+{
+  "manifest_version": 3,
+  "name": "VAPT Minimal New Tab",
+  "version": "1.0.0",
+  "description": "Minimalist, responsive cybersecurity and VAPT-themed New Tab dashboard.",
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "permissions": [
+    "storage",
+    "declarativeNetRequest",
+    "scripting",
+    "webNavigation"
+  ],
+  "background": {
+    "service_worker": "js/background.js"
+  },
+  "host_permissions": [
+    "<all_urls>",
+    "https://suggestqueries.google.com/*",
+    "https://duckduckgo.com/*",
+    "https://*.duckduckgo.com/*",
+    "https://ahmia.fi/*",
+    "https://search.brave.com/*",
+    "https://chat.deepseek.com/*",
+    "https://*.deepseek.com/*",
+    "https://api.ipify.org/*",
+    "https://api64.ipify.org/*",
+    "https://ipwho.is/*",
+    "https://httpbin.org/*",
+    "https://ipapi.co/*",
+    "https://unsplash.com/*",
+    "https://*.unsplash.com/*",
+    "https://www.revshells.com/*",
+    "https://revshells.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": ["js/ua-spoof-content.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "icons": {
+    "16": "assets/icon16.png",
+    "32": "assets/icon32.png",
+    "48": "assets/icon48.png",
+    "128": "assets/icon128.png"
+  }
+}

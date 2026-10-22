@@ -1,0 +1,52 @@
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Thumbs.db:encryptable
+desktop.ini
+
+# Editor & IDE Directories
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*.swo
+*~
+
+# Extension Packages & Secrets
+*.crx
+*.pem
+*.key
+*.cert
+*.pfx
+
+# Node & Dependencies (if npm is used)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+pnpm-lock.yaml
+
+# Temporary Test Files & Screenshots
+scratch/
+test_shot.png
+*.tmp
+*.bak
+*.log
+
+# Local Environments & Private Data
+.env
+.env.local
+.env.*.local
+*.local
+*lan-notes*
+*lan_notes*
+*.cache
