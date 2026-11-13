@@ -1,268 +1,140 @@
-# VAPT Minimal New Tab - Cybersecurity & Recon Dashboard
+# CyberTab - Personal Aesthetic Dashboard & New Tab Experience
 
-A sleek, minimalist, cybersecurity-themed New Tab dashboard extension for Google Chrome. Engineered with dark glassmorphism, responsive grid widget architecture, command-driven search, and specialized penetration testing and OSINT reconnaissance modules.
+A handcrafted personal new tab dashboard created for daily aesthetic pleasure, focus, and curiosity. Built with dark glassmorphism, responsive drag-and-drop widgets, keyboard-driven navigation, and playful cybersecurity touches.
 
-Developed by [kakaxh1](https://github.com/Kakaxh1/New-Tab-Extension) • [Portfolio](https://bhavymorvadiya.netlify.app/).
+Created by [kakaxh1](https://github.com/Kakaxh1/New-Tab-Extension) • [Portfolio](https://bhavymorvadiya.netlify.app/).
 
 ---
 
-## Quick Start / Installation
+## Why This Exists (The Personal Experience)
 
-1. Clone or download this repository:
+This project was built first and foremost as a **personal experience**, not a corporate tool, commercial utility, or enterprise software. 
+
+Every time you open a new tab, you are greeted with a clean, ambient, distraction-free environment tailored for someone who appreciates:
+* **Cyberpunk & Dark Glass Aesthetics**: Deep translucent surfaces, frosted blur, ambient lighting, and crisp monospace typography that make every tab feel like a personal sci-fi terminal.
+* **Atmospheric Ambiance**: Ultra-high-resolution wallpapers, Ken Burns smooth motion, subtle 3D mouse parallax, and customizable dark overlays that keep the screen easy on the eyes during late-night sessions.
+* **Frictionless Daily Flow**: Instant search with engine switching (`E`), command palette (`K`), quick-access bookmarks, focus sprint timers, and persistent task checklists.
+* **Curiosity & Exploration**: Built-in gadgets for exploring the web, learning how pages are constructed, inspecting response headers, practicing Google dorking queries, and jotting down notes across personal devices on a local LAN.
+
+---
+
+## Getting Started
+
+1. Clone or download this repository to your computer:
    ```bash
    git clone https://github.com/Kakaxh1/New-Tab-Extension.git
    ```
-2. Open **Google Chrome** and navigate to `chrome://extensions/`.
-3. Enable the **Developer mode** toggle in the top-right corner.
-4. Click **Load unpacked** in the top-left corner.
-5. Select the `New-Tab-Extension` directory.
-6. Open a new tab (`Ctrl + T` or `Cmd + T`) to launch your VAPT dashboard.
+2. Open **Google Chrome** (or any Chromium browser like Brave, Edge, or Vivaldi) and navigate to `chrome://extensions/`.
+3. Toggle on **Developer mode** in the upper-right corner.
+4. Click **Load unpacked** in the upper-left corner.
+5. Select the folder containing this repository.
+6. Open a new tab (`Ctrl + T` or `Cmd + T`) to launch your personalized space.
 
 ---
 
-## Visual Design & Aesthetics
+## The Visual Experience
 
-* **Cyberpunk Glassmorphism**: Tailored HSL color palette, translucent frosted glass cards with multi-layer background blur, high-contrast typography (Inter and monospace digits), and smooth micro-interactions.
+* **Layered Glassmorphism**: Translucent frosted panels with real-time blur, high-contrast borders, and adaptive accent colors (Cyan, Emerald, Amber, Violet, Crimson, Sky).
 * **Three Curated Themes**:
-  * **Charcoal Glass (Default)**: Deep blue-gray glass with vibrant Google Blue and Cyan telemetry accents.
-  * **OLED Midnight**: Pitch-black surfaces designed for maximum battery savings and ultra-high contrast.
-  * **Frosted Light**: Clean slate-white glass aesthetic with soft drop shadows and crisp dark typography.
-  *(Toggle instantly with `D` or via Settings).*
-* **Dynamic Wallpaper & Ambient Engine**:
-  * **Dynamic Multi-Tier Search & Wallpaper Engine**:
-    * **Live Dynamic Wallpaper Search**: Real-time keyword search across millions of HD wallpapers (matrix, cyberpunk, tokyo, dark, etc.) without requiring setup.
-    * **Official Unsplash API Integration**: Optional Unsplash API Access Key field in Settings for official Unsplash developer access.
-    * **Direct Photo URL & ID Recognition**: Paste any Unsplash or direct image URL to load and apply immediately.
-    * **Curated Categorized Pools**: Built-in high-resolution collections across Technology, Cyber Security, Hacker, Architecture, Nature, Space, Minimalist, and Abstract Neon with 1-click shuffle (`B`).
-  * **Custom Image / URL**: Load any external wallpaper URL or upload local images stored offline.
-  * **Cyber Gradients**: Solid colors and built-in hacker gradients (Cyber Void, Deep Matrix, Carbon Fiber, Crimson Eclipse).
-  * **Visual Post-Processing**: Real-time adjustable sliders for Background Darkness (0-95%), Frosted Blur (0-25px), Vignette Shadows, and subtle 3D Parallax mouse depth.
+  * **Charcoal Glass (Default)**: Deep charcoal-slate glass with cool cyan telemetry accents.
+  * **OLED Midnight**: Pitch-black pure void surfaces designed for battery savings and zero glare.
+  * **Frosted Light**: Clean translucent light glass with crisp dark slate text.
+  *(Cycle themes instantly with `D` or through Settings).*
+* **Wallpaper Engine & Mood Customization**:
+  * **Dynamic Keyword Search**: Type any theme or mood (`matrix`, `cyberpunk`, `space`, `tokyo`, `nature`, `dark`) to load high-resolution wallpapers on the fly.
+  * **Curated Offline Collections**: Hand-picked collections across Technology, Cyber Security, Hacker, Architecture, Nature, Space, Minimalist, and Abstract Neon with 1-click shuffle (`B`).
+  * **Direct Links & Local Files**: Drop any image URL or upload a local wallpaper stored entirely inside the browser.
+  * **Post-Processing Controls**: Real-time sliders for Darkness Dimming (0-95%), Frosted Glass Blur (0-25px), Vignette Shadowing, and 3D Parallax mouse depth.
 
 ---
 
-## Key UI & UX Features
+## Highlights of the Space
 
 ### 1. Header Telemetry HUD
-
-Located across the top navigation bar for zero-click operational awareness:
-
-* **Active Public IP & VPN Leak Checker (`I`)**:
-  * Real-time network indicator with status dot:
-    * Green: Secure / Public Network
-    * Blue: Protected VPN / Proxy / Datacenter
-    * Red: Network Leak / Offline
-  * Click to reveal the **Network Telemetry Popover**: inspects your public IPv4/IPv6, ISP/Organization, Country, City, and provides a 1-click **Copy IP** button.
-* **Compact Header Countdown & Sprint Timer**:
-  * Positioned right beside the IP network pill with an SVG stopwatch icon.
-  * Displays remaining engagement time or sprint countdown in compact tabular monospace digits (e.g. `CTF: 06d 23h 45m` or `24:59`).
-  * Real-time status badges: `LIVE`, `URGENT` (< 1 hour remaining), `EXPIRED`, or `SPRINT`.
-  * Click the pill to open the **Interactive Popover Card**:
-    * Full precision countdown (`00d 00h 00m 00s`).
-    * Animated gradient progress bar showing percentage of time elapsed.
-    * 1-click **Start / Pause** button for focus sprints.
-    * 1-click **Configure Target** button to jump directly to the Countdown widget.
-* **Quick Navigation Controls**:
-  * **`+ Add widget` (`W` or `A`)**: Opens the modular Widget Library modal.
-  * **`Arrange` (`M` or `R`)**: Toggles freeform drag-and-drop grid repositioning.
-  * **`Wallpaper` (`P`)**: Opens the background and overlay settings drawer.
-  * **`Tasks` (`T`)**: Slides open the right-side To-Do drawer.
-  * **`Shortcuts` (`?` or `H`)**: Opens the keyboard cheatsheet HUD.
-  * **`Settings` (`O` or `,`)**: Opens the operator preferences slide-over.
-
----
+Glanceable stats across the top navigation bar designed for zero-click awareness:
+* **Network & Public IP Indicator (`I`)**: Shows public IP, location, and organization status at a glance.
+* **Sprint & Target Countdown Pill**: A discreet timer showing active focus sessions or countdowns to personal milestones, exams, or CTF events, with an interactive popover progress bar.
+* **Quick Navigation**: Instant shortcuts for adding widgets (`W`), arranging the grid (`M`), toggling wallpaper settings (`P`), opening tasks (`T`), viewing hotkeys (`?`), or customizing preferences (`O`).
 
 ### 2. Center Omni-Search HUD
+Press **`S`** or **`/`** from anywhere to focus the search bar:
+* **Interactive Engine Switcher (`E`)**: Seamlessly cycle between search providers (Google, DuckDuckGo, Brave, Startpage, DeepSeek AI, and Tor search gateways like Torch and Ahmia).
+* **Jump Bangs**: Quick prefix jumps to security references, documentation, and cheat sheets (`!cve`, `!shodan`, `!gtfo`, `!payloads`, `!ht`, `!dork`).
 
-Press **`S`** or **`/`** from anywhere on the page to instantly snap focus to the search bar.
+### 3. Google Dorking & OSINT Learning Workbench
+A fun, exploratory workstation for discovering how search engines index public data:
+* **Interactive Query Builder**: Visual chips for operators like `site:`, `inurl:`, `intitle:`, `filetype:`, and exact quotes.
+* **Curated Query Library**: Examples exploring exposed documents, configuration files, and technology footprints for educational understanding.
+* **Personal Notes & Evidence Log**: Save interesting queries and findings locally with JSON export and import.
 
-* **Interactive Engine Switcher Pill (`E`)**:
-  Click the pill on the search bar or press `E` to cycle between search backends:
-  * Google (Primary clearnet web index)
-  * DuckDuckGo (Untracked privacy search)
-  * Torch (.onion) (Oldest Tor dark web search engine)
-  * Ahmia Tor Search (Clearnet gateway for hidden services)
-  * DuckDuckGo Onion (Tor hidden service mirror)
-  * Brave Search (Independent privacy index)
-  * Startpage (Private Google results without profiling)
-  * DeepSeek AI (Advanced reasoning and code assistant)
-* **Built-in Security Bangs & Jump Shortcuts**:
-  * `!cve <id>` - Lookup vulnerabilities on CVE Details & NVD
-  * `!shodan <query>` - Search Shodan internet intelligence
-  * `!edb <query>` - Search Exploit-DB for verified exploits
-  * `!ghdb <query>` - Search the Google Hacking Database
-  * `!payloads <query>` - Search PayloadsAllTheThings
-  * `!gtfo <binary>` - GTFOBins Unix privilege escalation commands
-  * `!ht <query>` - Search HackTricks pentesting encyclopedia
-  * `!ps <query>` - PortSwigger Web Security Academy lookups
-  * `!dork <query>` - Formulate and execute a raw Google Dork
-  * `!dorkui` - Open the interactive Dork Builder modal
-  * `!site <domain>` - Scoped domain query (`site:<domain>`)
-  * `!filetype <ext> <domain>` - Filetype exposure query (`site:<domain> filetype:<ext>`)
-* **Autocomplete & Predictive History**:
-  * Type `/` to browse built-in commands with live arrow-key navigation and `Tab` completion.
-
----
-
-### 3. Google Dorking & Person OSINT Workbench
-
-An integrated offensive intelligence workstation accessible via the bottom dock, search commands (`/dorkui`), or the dashboard widget:
-
-* **Interactive Dork Builder**:
-  * One-click operator chips for `site:`, `inurl:`, `intitle:`, `filetype:`, `intext:`, `allintitle:`, `before:`, `after:`, `OR`, `-`, and exact quoted phrases `""`.
-  * Dynamic target substitution: define your target domain once (`{DOMAIN}`) and watch all queries auto-populate.
-  * Live compiled query preview with 1-click **Copy Query** and **Open in Google**.
-* **Pre-compiled VAPT Dork Library**:
-  * **Domain Recon**: Subdomains (`-www`), public PDFs, API schemas, technology footprints.
-  * **Public Docs & Exposures**: Leaked spreadsheets (`.xlsx`, `.csv`), configuration guides, OpenAPI docs.
-  * **Auth & Gateways**: Sign-in portals, admin panels, SSO/OAuth endpoints, server stack traces.
-  * **Security Misconfigurations**: Public backups (`.bak`, `.old`), directory listings (`intitle:"index of"`), environment files (`.env`).
-  * **Vulnerability Research**: CVE references, vendor advisories, GitHub PoCs.
-* **Dedicated Person OSINT Module**:
-  * Configure **Target Name** (`{PERSON}`) and **Handle/Username** (`{HANDLE}`).
-  * **Social Profile Discovery**: Cross-platform reconnaissance across X, LinkedIn, Instagram, Facebook.
-  * **Professional Dossiers**: Career history, recommendations, and roles via LinkedIn.
-  * **Username & Alias Pivoting**: Search Reddit, Telegram, Medium, GitHub, YouTube, TikTok.
-  * **Code & Commits**: Git commits, public gists, and repository author searches.
-  * **Document Exposures**: Resumes, CVs, biography briefs (`filetype:pdf`, `filetype:docx`).
-  * **Paste & Credential Dumps**: Search Pastebin, JustPaste, and paste mirrors for leaked data.
-* **1-Click External OSINT Pivots**:
-  * Direct launchers to WhatsMyName (500+ site username scanner), IntelX, Wayback Machine, Namechk, and LinkedIn Directory.
-* **Investigation Evidence & Notes Log**:
-  * Record findings with Target, Evidence Source URL, Verification Status (`CONFIRMED`, `UNVERIFIED`, `FALSE POSITIVE`), and notes.
-  * Complete export and import of saved queries and evidence as JSON (`google-dorks-backup.json`).
-
----
-
-### 4. Toolbar Popup: Active Target Auditor & In-Browser Toolkit
-
-Clicking the extension icon in the Chrome toolbar transforms the extension into an **active in-browser security auditor** for the website currently open in your browser tab:
-
-* **Active Target HUD**:
-  * Real-time domain, full URL, and protocol audit (`HTTPS` / `HTTP` insecure warning).
-  * **1-Click "Set Scope"**: Automatically updates the New Tab Dork Builder, Scope Tracker, and LAN Notes to the active domain.
-  * **1-Click "Clip to Notes"**: Appends `[Timestamp] Target: URL ("Title")` directly into shared LAN notes.
-* **Security Headers Audit**:
-  * Live response header inspection analyzing `Content-Security-Policy` (CSP), `Strict-Transport-Security` (HSTS), `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, and `CORS Access-Control-Allow-Origin`.
-  * Overall compliance rating (e.g. `5/7 Passed` with Green/Amber/Red status dots).
-  * Technology disclosure banner detecting leaked `Server` and `X-Powered-By` backend versions (e.g. `nginx/1.24`, `Express`, `PHP/8.2`).
-* **Live Clickjacking Framing Test**:
-  * Attempts cross-origin sandboxed framing of the target page.
-  * Instantly reports `VULNERABLE` if framing succeeds or `PROTECTED` if blocked by target `X-Frame-Options` or `CSP frame-ancestors`.
-* **Form & Hidden Input Inspector**:
-  * Scans active tab DOM for total forms, inputs, hidden inputs, and password fields.
-  * Extracts all `<input type="hidden">` names, IDs, and values (CSRF tokens, internal IDs, state flags) with 1-click clipboard copy.
-  * **"Reveal & Unlock Hidden Fields"**: Injects on-page styling to convert all hidden inputs into visible, dashed-amber text boxes with labels, and unlocks all disabled/readonly fields live on the target website.
-* **Page Endpoints & Script Scraper**:
-  * Extracts all loaded `<script src="...">` bundle paths.
-  * Analyzes inline JavaScript using regexes to unearth hidden REST API paths, `/api/...`, `/v1/`, `graphql`, `.json`, and admin routes.
-  * Search/filter bar and 1-click **Copy All Endpoints** to easily generate fuzzing wordlists for Burp Suite or ffuf.
-* **1-Click User-Agent & Header Spoofer**:
-  * Preset buttons to switch identity instantly: Googlebot 2.1, Googlebot Mobile, iPhone Safari (iOS 17), Android Chrome, Pentest Audit / Burp Suite, Tor Browser Linux, or custom string.
-  * "Auto-reload active tab on switch" toggle.
-  * Quick-copy cheat sheet for reverse proxy origin bypass headers (`X-Forwarded-For: 127.0.0.1`, `X-Real-IP`, `X-Originating-IP`).
-* **Mini LAN Shared Notes**:
-  * Compact synchronized notepad connected to your local LAN server (`shared_notes.txt`).
-  * **1-Click Converters**:
-    * **Quote Converter (` ` -> `'`)**: Instantly converts MySQL/Markdown backticks into standard SQL/string single quotes within highlighted text selections or across the full note.
-    * **Em Dash to Hyphen (`—` -> `-`)**: Instantly fixes pasted Word/macOS typography by converting em dashes and en dashes into standard CLI/ASCII hyphens.
-  * Live character stats, manual sync, and target clipper.
-
----
+### 4. Toolbar Popup: In-Browser Web Explorer & LAN Notes
+Clicking the extension icon in Chrome opens a personal companion popup for inspecting the currently active website:
+* **Page & Protocol Overview**: Real-time domain, protocol status, and 1-click clipping of the current URL into personal notes.
+* **Security Headers Check**: A quick glance at standard HTTP response headers (`CSP`, `HSTS`, `X-Frame-Options`, `CORS`) to see how websites protect themselves.
+* **Clickjacking Framing Demo**: A sandboxed test to visualize how frame-ancestor policies behave in real-time.
+* **Hidden Field & Form Inspector**: View hidden form inputs on pages and toggle "Reveal & Unlock" to see how forms structure client-side parameters.
+* **Script & Endpoint Scraper**: Scan script tags on the active page to spot internal API paths and endpoints for learning purposes.
+* **User-Agent Switcher**: Test how sites adapt layout across mobile, Googlebot, and custom desktop personas.
+* **Mini LAN Shared Notes**: A synced scratchpad connected to your local home network (`shared_notes.txt`). Includes 1-click text formatting tools:
+  * **Quote Normalizer (` ` -> `'`)**: Converts backticks to single quotes within highlighted selections or entire notes.
+  * **Dash Normalizer (`—` -> `-`)**: Replaces Word and macOS em/en dashes with standard clean hyphens.
 
 ### 5. Modular Dashboard Widgets & Freeform Grid
+Every card on the dashboard can be dragged, repositioned, resized, or removed:
+* **Arrange Mode (`M` or `R`)**: Reorder the workspace freely to create your own personal layout.
+* **Widget Collection**:
+  * **Countdown & Sprint Timer**: Focus intervals (25m Pomodoro, 45m Deep Work) or target deadlines.
+  * **Payload Reference & Encoders**: Quick reference copy-paste for standard strings, Base64, Hex, and SHA-256 hashes.
+  * **Networking Reference**: Common ports, protocols, and CIDR subnet calculator.
+  * **Digital Clock & Calendar**: Monospace high-precision clock and date display.
+  * **Thought of the Moment**: Curated security and philosophical quotes (`Q` to cycle, `C` to copy).
+  * **LAN Shared Notes**: Full Markdown viewer and editor synchronized with your local network.
+  * **To-Do Checklist**: Fast, interactive task list synced with the slide-out task drawer.
 
-Every widget can be freely positioned, resized, or customized on the grid:
-
-* **Arrange Mode (`M` or `R`)**:
-  * Drag widget headers to position cards anywhere on the grid.
-  * Click the resize icon or drag the bottom-right corner grip to cycle between **Compact (1x1)**, **Wide (2x1)**, **Tall (1x2)**, **Large (2x2)**, or **Full Width (4x2)**.
-* **Available Widget Suite**:
-  1. **Countdown & Sprint Timer**:
-     * **Deadline Mode**: Set custom target date/time (CTFs, certifications, exam deadlines). Displays 4 digital time cards (`DAYS`, `HOURS`, `MINS`, `SECS`), elapsed progress track, and urgency glow.
-     * **Focus Sprint Mode**: Built-in timers (25m Pomodoro, 45m Recon, 60m Deep Work, 90m Marathon) with start, pause, and reset controls.
-     * Inline gear button flips to quick-config drawer with `+1h`, `+24h`, `+7d` presets.
-  2. **Security Payloads**: Instant 1-click copy for essential XSS, SQLi, SSRF, LFI, and Reverse Shell strings.
-  3. **Encoder / Decoder**: Live bi-directional conversions for Base64, URL Encode, Hex, and SHA-256 hashes.
-  4. **Common Ports & Protocols**: Quick-reference table of common networking ports, standard services, and default credentials.
-  5. **Subnets & CIDR Calculator**: Input any IP/CIDR (e.g. `10.0.0.0/24`) to get network address, broadcast, usable range, and host count.
-  6. **CVSS v3.1 Calculator**: Interactive base metric scoring with instant CVSS score calculation and vector string generator.
-  7. **User-Agent & Header Switcher**: Spoof browser User-Agents (Googlebot, Burp Suite, Mobile, Custom) with declarativeNetRequest header rules.
-  8. **Notes Scratchpad**: Lightweight local notepad for engagement scopes, payloads, and credentials.
-  9. **Interactive To-Do List**: Target checklist synchronized with the slide-out tasks drawer.
-  10. **Digital Clock**: High-precision clock with 12h/24h toggle and zero layout jitter.
-  11. **Date Stack**: Minimalist calendar block with Day, Date, and Month.
-  12. **VAPT Principles Quote**: Curated security quotes with smooth fade transitions and 1-click clipboard copy.
-  13. **Operational Identity**: Red Team / VAPT mode badge with pulsating core orb.
-  14. **System Status**: Real-time network latency ping and browser online status.
-  15. **World Clock**: Multiple operational timezones (UTC, EST, GMT, JST).
-  16. **LAN Shared Notes & Markdown Sync**: Local LAN notes synchronization engine (`http://192.168.1.143:9900`). Features split-view Markdown renderer, interactive task checklists, code blocks with 1-click copy, and 1-click **Converters (` ` -> `'` and `—` -> `-`)** for SQL queries, payloads, and CLI flags.
+### 6. Bottom Dock & Curated Reference Flyouts
+Hover or click across the bottom dock to access quick links to developer tools, documentation, cheat sheets, and online decoders (CyberChef, GTFOBins, HackTricks, PortSwigger Academy).
 
 ---
 
-### 6. Slide-Out Tasks & Engagement Drawer (`T`)
+## Keyboard Navigation
 
-Press **`T`** or click the checklist icon in the top-right header to toggle the side drawer:
-* Add tasks with `Enter` or the `+` button.
-* Filter by **All**, **Active**, and **Completed**.
-* Real-time task completion progress counter (e.g. `3/5 Done`).
-* Purge finished tasks with the **Clear Completed** batch button.
-* Fully persistent in local storage.
+Built for hands-on-keyboard enthusiasts:
 
----
-
-### 7. Bottom Dock Flyouts (Security Toolkit)
-
-Hover or click items on the floating bottom dock for instant access to curated security resources:
-* **Search Flyout**: Quick links to Dork Builder, GHDB, Ahmia, Torch, and GitHub Code Search.
-* **GitHub Flyout**: PayloadsAllTheThings, SecLists, PEASS-ng, Nuclei Templates, HackTricks.
-* **Cheatsheets Flyout**: GTFOBins, LOLBAS, WADComs, RevShells, HackTricks Cloud.
-* **Lookups Flyout**: Exploit-DB, Sploitus, crt.sh, BGP Hurricane Electric, Default Creds.
-* **AppSec Flyout**: PortSwigger Web Academy, OWASP WSTG, OWASP Top 10, Hack The Box.
-* **Decoders Flyout**: CyberChef, CrackStation, JWT.io, Hash Identifier.
-
----
-
-### 8. Keyboard Navigation & Shortcuts Cheatsheet
-
-Press **`?`** or **`H`** to summon the hotkey cheatsheet HUD:
-
-| Hotkey | Action | Description |
+| Hotkey | Action | What it Does |
 | :--- | :--- | :--- |
-| `S` or `/` | **Focus Search** | Focus main search bar |
-| `E` | **Cycle Engine** | Switch between Google, DuckDuckGo, Torch, Ahmia, Brave, DeepSeek |
-| `Ctrl + K` or `K` | **Command Palette** | Quick action launcher for tools, themes, and encoders |
-| `T` | **Tasks Drawer** | Toggle slide-out target checklist drawer |
-| `W` or `A` | **Add Widget** | Open the Widget Library catalog |
-| `M` or `R` | **Arrange Mode** | Toggle freeform drag-and-drop widget layout |
-| `O` or `,` | **Settings** | Open dashboard settings & operator profile |
-| `B` | **Shuffle Background** | Fetch a fresh cyber wallpaper from Unsplash |
-| `P` | **Wallpaper Panel** | Configure wallpapers, blur, and contrast overlays |
-| `I` | **IP Telemetry** | Inspect public IP, VPN leak status, and network info |
-| `D` | **Cycle Theme** | Instant swap between Charcoal Glass, OLED Midnight, and Light |
-| `Q` | **Next Principle** | Cycle to next security quote |
-| `C` | **Copy Principle** | Copy active quote to clipboard |
-| `1` - `6` | **Dock Flyouts** | Trigger bottom dock menus (Search, GitHub, Cheats, Lookups, AppSec, Decoders) |
-| `Esc` | **Dismiss / Close** | Close any open modal, popover, drawer, or search focus |
+| `S` or `/` | **Focus Search** | Snaps focus straight to the main search bar |
+| `E` | **Cycle Engine** | Switches between Google, DuckDuckGo, Brave, DeepSeek, etc. |
+| `Ctrl + K` or `K` | **Command Palette** | Quick launcher for theme changes, widgets, and tools |
+| `T` | **Tasks Drawer** | Slides open your personal to-do list |
+| `W` or `A` | **Add Widget** | Opens the modular widget catalog |
+| `M` or `R` | **Arrange Mode** | Toggles freeform drag-and-drop widget layout |
+| `O` or `,` | **Settings** | Opens operator preferences and profile |
+| `B` | **Shuffle Background** | Cycles to a fresh atmospheric wallpaper |
+| `P` | **Wallpaper Panel** | Opens background customization drawer |
+| `I` | **IP Telemetry** | Displays network telemetry details |
+| `D` | **Cycle Theme** | Cycles between Charcoal, Midnight, and Light |
+| `Q` | **Next Quote** | Cycles to the next quote |
+| `C` | **Copy Quote** | Copies active quote text to clipboard |
+| `Esc` | **Dismiss** | Closes any open modal, drawer, or search focus |
 
 ---
 
-## Privacy & Security
+## Privacy & Local Ownership
 
-* **100% Offline-First Architecture**: Operates directly inside your browser. No external telemetry, tracking scripts, or analytics.
-* **Zero Third-Party CDNs**: All fonts, SVGs, styles, and scripts are bundled locally within the extension to ensure strict adherence to Content Security Policy (CSP).
-* **Safe Storage**: Notes, settings, and saved dorks stay strictly in your local browser profile (`chrome.storage.local`).
+* **100% Local & Offline-First**: Runs entirely inside your browser. No third-party analytics, tracking scripts, or telemetry collected.
+* **No External CDNs Required**: All fonts, icons (custom SVGs), and scripts are bundled locally inside the extension.
+* **Your Data Stays Yours**: Your notes, widget positions, and preferences live strictly within your local browser storage (`chrome.storage.local`).
 
 ---
 
-## Author & Developer
+## About the Author
 
-* **Developer**: [kakaxh1](https://github.com/Kakaxh1/New-Tab-Extension)
+* **Author**: [kakaxh1](https://github.com/Kakaxh1/New-Tab-Extension)
 * **Portfolio**: [bhavymorvadiya.netlify.app](https://bhavymorvadiya.netlify.app/)
-* **Project Repository**: [github.com/Kakaxh1/New-Tab-Extension](https://github.com/Kakaxh1/New-Tab-Extension)
+* **Repository**: [github.com/Kakaxh1/New-Tab-Extension](https://github.com/Kakaxh1/New-Tab-Extension)
 
 ---
 
 ## License
 
 MIT License - Copyright (c) 2026 [kakaxh1](https://github.com/Kakaxh1/New-Tab-Extension).
-
