@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const unsplashSearch = settings.unsplashSearch || 'cyber security';
   const unsplashCategory = settings.unsplashCategory || 'technology';
   const unsplashMode = settings.unsplashMode || 'random';
+  const unsplashApiKey = settings.unsplashApiKey || '';
   const overlayDarkness = settings.overlayDarkness !== undefined ? settings.overlayDarkness : 0.65;
   const overlayBlur = settings.overlayBlur !== undefined ? settings.overlayBlur : 8;
   const effectGlassReadability = settings.effectGlassReadability !== undefined ? settings.effectGlassReadability : true;
@@ -29,6 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const infoShowPhotographer = settings.infoShowPhotographer !== undefined ? settings.infoShowPhotographer : true;
   const infoShowAttribution = settings.infoShowAttribution !== undefined ? settings.infoShowAttribution : true;
   const cachedWallpaperDataUrl = settings.cachedWallpaperDataUrl || '';
+  const cachedWallpaperForUrl = settings.cachedWallpaperForUrl || '';
   const wallpaperUrl = optimizeUnsplashUrl(settings.wallpaperUrl || StorageService.DEFAULTS.wallpaperUrl);
   const wallpaperTitle = settings.wallpaperTitle || 'Dark Matrix';
   const wallpaperAuthor = settings.wallpaperAuthor || 'Markus Spiske';
@@ -40,10 +42,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const bgState = {
     source: bgSource,
-    cachedDataUrl: cachedWallpaperDataUrl,
+    cachedDataUrl: (cachedWallpaperForUrl && cachedWallpaperForUrl === wallpaperUrl) ? cachedWallpaperDataUrl : '',
+    cachedForUrl: cachedWallpaperForUrl,
     unsplashSearch,
     unsplashCategory,
     unsplashMode,
+    unsplashApiKey,
     url: wallpaperUrl,
     title: wallpaperTitle,
     author: wallpaperAuthor,
@@ -265,7 +269,7 @@ function extractBestUnsplashUrl(urls, targetWidth = 1920, quality = 75) {
 async function cacheWallpaperLocally(url) {
   if (!url || !url.startsWith('http')) return;
   try {
-    const res = await fetch(url);
+    const res = await fetch(url, { mode: 'cors' });
     if (!res.ok) return;
     const blob = await res.blob();
     const reader = new FileReader();
@@ -273,6 +277,11 @@ async function cacheWallpaperLocally(url) {
       const dataUrl = reader.result;
       if (dataUrl && dataUrl.length < 2500000) {
         StorageService.set('cachedWallpaperDataUrl', dataUrl);
+        StorageService.set('cachedWallpaperForUrl', url);
+        if (currentBackgroundState && currentBackgroundState.url === url) {
+          currentBackgroundState.cachedDataUrl = dataUrl;
+          currentBackgroundState.cachedForUrl = url;
+        }
       }
     };
     reader.readAsDataURL(blob);
@@ -317,34 +326,20 @@ function applyBackground(state) {
   let hasImage = false;
 
   if (state.source === 'unsplash') {
-    const cachedData = state.cachedDataUrl || StorageService.getSync('cachedWallpaperDataUrl', '');
     const optUrl = optimizeUnsplashUrl(state.url || '');
+    const cachedData = state.cachedDataUrl;
+    const cachedForUrl = state.cachedForUrl || StorageService.getSync('cachedWallpaperForUrl', '');
 
-    if (cachedData) {
+    if (cachedData && cachedForUrl === optUrl) {
       img.style.backgroundColor = 'transparent';
       img.style.backgroundImage = `url("${cachedData}")`;
       hasImage = true;
     } else if (optUrl) {
       hasImage = true;
-      if (img.dataset.loadedUrl === optUrl) {
-        img.style.backgroundColor = 'transparent';
-        img.style.backgroundImage = `url("${optUrl}")`;
-      } else {
-        const preloader = new Image();
-        preloader.src = optUrl;
-        preloader.onload = () => {
-          img.style.backgroundColor = 'transparent';
-          img.style.backgroundImage = `url("${optUrl}")`;
-          img.dataset.loadedUrl = optUrl;
-          cacheWallpaperLocally(optUrl);
-        };
-        if (preloader.complete) {
-          img.style.backgroundColor = 'transparent';
-          img.style.backgroundImage = `url("${optUrl}")`;
-          img.dataset.loadedUrl = optUrl;
-          cacheWallpaperLocally(optUrl);
-        }
-      }
+      img.style.backgroundColor = 'transparent';
+      img.style.backgroundImage = `url("${optUrl}")`;
+      img.dataset.loadedUrl = optUrl;
+      cacheWallpaperLocally(optUrl);
     }
   } else if (state.source === 'custom-url') {
     const url = state.customUrl || '';
@@ -362,8 +357,13 @@ function applyBackground(state) {
     }
   } else if (state.source === 'solid-gradient') {
     const grad = state.gradient || 'linear-gradient(135deg, #0b0f19 0%, #151b28 50%, #0d1117 100%)';
-    img.style.backgroundColor = 'transparent';
-    img.style.backgroundImage = grad;
+    if (grad.startsWith('#') || grad.startsWith('rgb') || grad.startsWith('hsl')) {
+      img.style.backgroundColor = grad;
+      img.style.backgroundImage = 'none';
+    } else {
+      img.style.backgroundColor = 'transparent';
+      img.style.backgroundImage = grad;
+    }
     hasImage = true;
   }
 
@@ -448,109 +448,194 @@ async function handleBackgroundModeOnLoad(bgState) {
 async function prefetchNextUnsplashWallpaper(query, category) {
   const searchTerm = (query || category || 'cyber security').trim();
   try {
-    const res = await fetch(`https://unsplash.com/napi/search/photos?query=${encodeURIComponent(searchTerm)}&per_page=12`);
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data.results && data.results.length > 0) {
-        const item = data.results[Math.floor(Math.random() * data.results.length)];
-        const fullUrl = extractBestUnsplashUrl(item.urls, 1920, 75);
-        const title = (item.description || item.alt_description || searchTerm).slice(0, 24);
-        const author = item.user ? item.user.name : 'Unsplash';
-        if (fullUrl) {
-          const img = new Image();
-          img.src = fullUrl;
-          await StorageService.set('nextUnsplashWallpaper', { url: fullUrl, title, author });
-        }
+    const list = getWallpapersForCategoryOrQuery(searchTerm, category);
+    if (list && list.length > 0) {
+      const item = list[Math.floor(Math.random() * list.length)];
+      if (item && item.url) {
+        const fullUrl = optimizeUnsplashUrl(item.url);
+        const img = new Image();
+        img.src = fullUrl;
+        await StorageService.set('nextUnsplashWallpaper', { url: fullUrl, title: item.title, author: item.author });
       }
     }
   } catch {
-    // Non-blocking
+    // Non-blocking fallback
   }
+}
+
+/**
+ * Curated High-Resolution Cyber, Tech & Dark Aesthetic Wallpapers by Category
+ */
+const CURATED_WALLPAPERS = {
+  'technology': [
+    { url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1920&q=75&auto=format&fit=crop", title: "Hardware Microchip", author: "Alexandre Debiève" },
+    { url: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1920&q=75&auto=format&fit=crop", title: "Server Terminal", author: "Florian Olivo" },
+    { url: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=1920&q=75&auto=format&fit=crop", title: "Server Racks", author: "Lars Kienle" },
+    { url: "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=1920&q=75&auto=format&fit=crop", title: "Circuit Glow", author: "Arseny Togulev" },
+    { url: "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=1920&q=75&auto=format&fit=crop", title: "Fiber Optic Nodes", author: "Chuttersnap" },
+    { url: "https://images.unsplash.com/photo-1517430816045-df4b7de01a5d?w=1920&q=75&auto=format&fit=crop", title: "Tech Architecture", author: "Christian Wiediger" }
+  ],
+  'cyber security': [
+    { url: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1920&q=75&auto=format&fit=crop", title: "Dark Matrix", author: "Markus Spiske" },
+    { url: "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=1920&q=75&auto=format&fit=crop", title: "Cyber Shield", author: "FlyD" },
+    { url: "https://images.unsplash.com/photo-1510511459019-5dda7724fd87?w=1920&q=75&auto=format&fit=crop", title: "Digital Encryption", author: "Markus Spiske" },
+    { url: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1920&q=75&auto=format&fit=crop", title: "Terminal Console", author: "Florian Olivo" },
+    { url: "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=1920&q=75&auto=format&fit=crop", title: "Trace Grid", author: "Arseny Togulev" },
+    { url: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=1920&q=75&auto=format&fit=crop", title: "Datacenter Vault", author: "Lars Kienle" }
+  ],
+  'hacker': [
+    { url: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1920&q=75&auto=format&fit=crop", title: "Matrix Rain", author: "Markus Spiske" },
+    { url: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1920&q=75&auto=format&fit=crop", title: "Command Prompt", author: "Florian Olivo" },
+    { url: "https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=1920&q=75&auto=format&fit=crop", title: "Source Code", author: "Danial RiCa" },
+    { url: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1920&q=75&auto=format&fit=crop", title: "IDE Terminal", author: "Fotis Fotopoulos" },
+    { url: "https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=1920&q=75&auto=format&fit=crop", title: "Linux Shell", author: "Gabriel Heinzer" }
+  ],
+  'architecture': [
+    { url: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&q=75&auto=format&fit=crop", title: "Dark Architecture", author: "Sean Pollock" },
+    { url: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=1920&q=75&auto=format&fit=crop", title: "Geometric Facade", author: "Joel Filipe" },
+    { url: "https://images.unsplash.com/photo-1513694203232-719a280e022f?w=1920&q=75&auto=format&fit=crop", title: "Minimal Concrete", author: "Simone Hutsch" },
+    { url: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1920&q=75&auto=format&fit=crop", title: "Glass Megastructure", author: "Samson" },
+    { url: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1920&q=75&auto=format&fit=crop", title: "Monolithic Tower", author: "Alex Wong" }
+  ],
+  'nature': [
+    { url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=75&auto=format&fit=crop", title: "Milky Way Mountains", author: "Benjamin Voros" },
+    { url: "https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=75&auto=format&fit=crop", title: "Dark Misty Forest", author: "Sebastian Unrau" },
+    { url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1920&q=75&auto=format&fit=crop", title: "Alpine Lake", author: "Bailey Zindel" },
+    { url: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=75&auto=format&fit=crop", title: "Mountain Peak Fog", author: "Kalen Emsley" },
+    { url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=75&auto=format&fit=crop", title: "Obsidian Coastline", author: "Sean Oulashin" }
+  ],
+  'space': [
+    { url: "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=1920&q=75&auto=format&fit=crop", title: "Deep Cosmos", author: "NASA" },
+    { url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=75&auto=format&fit=crop", title: "Milky Way Stars", author: "Benjamin Voros" },
+    { url: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=75&auto=format&fit=crop", title: "Deep Space Nebula", author: "NASA" },
+    { url: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=1920&q=75&auto=format&fit=crop", title: "Celestial Orbit", author: "NASA" },
+    { url: "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=1920&q=75&auto=format&fit=crop", title: "Starfield Dust", author: "Graham Holtshausen" }
+  ],
+  'minimalist dark': [
+    { url: "https://images.unsplash.com/photo-1507499739999-097706ad8914?w=1920&q=75&auto=format&fit=crop", title: "Dark Topography", author: "Lucas Benjamin" },
+    { url: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1920&q=75&auto=format&fit=crop", title: "Dark Slate Texture", author: "Pawel Czerwinski" },
+    { url: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=1920&q=75&auto=format&fit=crop", title: "Monochromatic Dunes", author: "Joshua Earle" },
+    { url: "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=1920&q=75&auto=format&fit=crop", title: "Shadow Geometry", author: "Geordanna Cordero" },
+    { url: "https://images.unsplash.com/photo-1604076913837-52ab5629fba9?w=1920&q=75&auto=format&fit=crop", title: "Obsidian Wave", author: "Steve Johnson" }
+  ],
+  'abstract neon': [
+    { url: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=1920&q=75&auto=format&fit=crop", title: "Tokyo Cyber", author: "Aleksandar Pasaric" },
+    { url: "https://images.unsplash.com/photo-1515260268569-9271009adfdb?w=1920&q=75&auto=format&fit=crop", title: "Neon Rain Street", author: "Max Langelott" },
+    { url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1920&q=75&auto=format&fit=crop", title: "Abstract Fluid Wave", author: "Milad Fakurian" },
+    { url: "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=1920&q=75&auto=format&fit=crop", title: "Cyberpunk Highway", author: "Denys Nevozhai" },
+    { url: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=1920&q=75&auto=format&fit=crop", title: "Neon Pulse Waves", author: "Zollern" }
+  ]
+};
+
+function getWallpapersForCategoryOrQuery(query, category) {
+  const normCat = (category || '').toLowerCase().trim();
+  const normQ = (query || '').toLowerCase().trim();
+
+  if (normCat && CURATED_WALLPAPERS[normCat]) {
+    return CURATED_WALLPAPERS[normCat];
+  }
+
+  const all = Object.values(CURATED_WALLPAPERS).flat();
+  if (!normQ) return all;
+
+  if (CURATED_WALLPAPERS[normQ]) {
+    return CURATED_WALLPAPERS[normQ];
+  }
+
+  const filtered = all.filter(item => 
+    item.title.toLowerCase().includes(normQ) ||
+    item.author.toLowerCase().includes(normQ)
+  );
+
+  return filtered.length > 0 ? filtered : all;
 }
 
 /**
  * Trigger Unsplash Shuffle
  */
 async function triggerUnsplashShuffle(query, category, notify = true) {
-  const searchTerm = (query || category || 'cyber security').trim();
-  const pool = [
-    { url: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1920&q=75&auto=format&fit=crop", title: "Dark Matrix", author: "Markus Spiske" },
-    { url: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=1920&q=75&auto=format&fit=crop", title: "Tokyo Cyber", author: "Aleksandar Pasaric" },
-    { url: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1920&q=75&auto=format&fit=crop", title: "Server Terminal", author: "Florian Olivo" },
-    { url: "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=1920&q=75&auto=format&fit=crop", title: "Deep Cosmos", author: "NASA" },
-    { url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1920&q=75&auto=format&fit=crop", title: "Abstract Fluid Wave", author: "Milad Fakurian" },
-    { url: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&q=75&auto=format&fit=crop", title: "Dark Architecture", author: "Sean Pollock" },
-    { url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1920&q=75&auto=format&fit=crop", title: "Hardware Microchip", author: "Alexandre Debiève" },
-    { url: "https://images.unsplash.com/photo-1515260268569-9271009adfdb?w=1920&q=75&auto=format&fit=crop", title: "Neon Rain Street", author: "Max Langelott" },
-    { url: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=1920&q=75&auto=format&fit=crop", title: "Server Racks", author: "Lars Kienle" },
-    { url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=75&auto=format&fit=crop", title: "Milky Way Mountains", author: "Benjamin Voros" },
-    { url: "https://images.unsplash.com/photo-1507499739999-097706ad8914?w=1920&q=75&auto=format&fit=crop", title: "Dark Topography", author: "Lucas Benjamin" },
-    { url: "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=1920&q=75&auto=format&fit=crop", title: "Circuit Glow", author: "Arseny Togulev" }
-  ];
+  const currentUrl = currentBackgroundState?.url || '';
 
-  try {
-    const res = await fetch(`https://unsplash.com/napi/search/photos?query=${encodeURIComponent(searchTerm)}&per_page=24`);
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data.results && data.results.length > 0) {
-        const item = data.results[Math.floor(Math.random() * data.results.length)];
-        const fullUrl = extractBestUnsplashUrl(item.urls, 1920, 75);
-        const title = (item.description || item.alt_description || searchTerm).slice(0, 24);
-        const author = item.user ? item.user.name : 'Unsplash';
-        if (fullUrl) {
-          await updateActiveUnsplashWallpaper(fullUrl, title, author, notify);
-          return;
-        }
-      }
+  // If active gallery cards exist from a search, shuffle within them
+  const gallery = document.getElementById('wallpaper-gallery-grid');
+  const galleryCards = gallery ? Array.from(gallery.querySelectorAll('.wallpaper-thumb-card')) : [];
+  if (galleryCards.length > 1) {
+    const differentCards = galleryCards.filter(c => c.dataset.url !== currentUrl);
+    const chosenCard = differentCards[Math.floor(Math.random() * differentCards.length)] || galleryCards[0];
+    if (chosenCard && chosenCard.dataset.url) {
+      await updateActiveUnsplashWallpaper(chosenCard.dataset.url, chosenCard.dataset.title, chosenCard.dataset.author, notify);
+      return;
     }
-  } catch (e) {
-    console.warn('Shuffle fallback to pool:', e.message);
   }
 
-  const chosen = pool[Math.floor(Math.random() * pool.length)];
-  await updateActiveUnsplashWallpaper(chosen.url, chosen.title, chosen.author, notify);
+  const cat = (category || currentBackgroundState?.unsplashCategory || 'technology').toLowerCase().trim();
+  const q = (query || currentBackgroundState?.unsplashSearch || '').toLowerCase().trim();
+
+  const candidates = getWallpapersForCategoryOrQuery(q, cat);
+
+  const different = candidates.filter(item => {
+    const opt = optimizeUnsplashUrl(item.url);
+    return opt !== currentUrl && !currentUrl.includes(item.url.split('?')[0]);
+  });
+
+  const poolToUse = different.length > 0 ? different : candidates;
+  const chosen = poolToUse[Math.floor(Math.random() * poolToUse.length)];
+
+  if (chosen) {
+    await updateActiveUnsplashWallpaper(chosen.url, chosen.title, chosen.author, notify);
+  }
 }
 
 async function updateActiveUnsplashWallpaper(url, title, author, notify = true) {
   if (!currentBackgroundState) return;
   const optimized = optimizeUnsplashUrl(url);
 
+  currentBackgroundState.source = 'unsplash';
   currentBackgroundState.url = optimized;
-  currentBackgroundState.cachedDataUrl = ''; // Clear prior cached base64 so newly chosen photo is displayed
+  currentBackgroundState.cachedDataUrl = '';
+  currentBackgroundState.cachedForUrl = '';
   currentBackgroundState.title = title;
   currentBackgroundState.author = author;
   if (!currentBackgroundState.attribution) currentBackgroundState.attribution = {};
   currentBackgroundState.attribution.photographer = author;
   currentBackgroundState.attribution.title = title;
 
-  // Preload new image in memory before swapping
-  const preloader = new Image();
-  preloader.src = optimized;
-  preloader.onload = () => {
-    applyBackground(currentBackgroundState);
-    cacheWallpaperLocally(optimized);
-  };
-  preloader.onerror = () => {
-    applyBackground(currentBackgroundState);
-  };
+  // Immediately apply background with 0ms lag
+  applyBackground(currentBackgroundState);
 
-  if (preloader.complete) {
-    applyBackground(currentBackgroundState);
-    cacheWallpaperLocally(optimized);
-  }
-
+  // Sync state & persist
+  await StorageService.set('bgSource', 'unsplash');
   await StorageService.set('wallpaperUrl', optimized);
   await StorageService.set('wallpaperTitle', title);
   await StorageService.set('wallpaperAuthor', author);
+  await StorageService.set('cachedWallpaperDataUrl', '');
+  await StorageService.set('cachedWallpaperForUrl', '');
+
+  // Update radio button and active panel in Settings
+  const radioUnsplash = document.getElementById('source-unsplash');
+  if (radioUnsplash) radioUnsplash.checked = true;
+  const panels = {
+    'unsplash': document.getElementById('bg-panel-unsplash'),
+    'custom-url': document.getElementById('bg-panel-custom-url'),
+    'local-image': document.getElementById('bg-panel-local-image'),
+    'solid-gradient': document.getElementById('bg-panel-solid-gradient')
+  };
+  Object.keys(panels).forEach(key => {
+    if (panels[key]) panels[key].classList.toggle('active', key === 'unsplash');
+  });
 
   // Update gallery highlight
   const gallery = document.getElementById('wallpaper-gallery-grid');
   if (gallery) {
     gallery.querySelectorAll('.wallpaper-thumb-card').forEach(card => {
-      const m = card.dataset.url === optimized || (card.dataset.url && card.dataset.url.includes('photo-') && optimized.includes(card.dataset.url.split('?')[0]));
+      const cardUrl = card.dataset.url ? optimizeUnsplashUrl(card.dataset.url) : '';
+      const m = cardUrl === optimized || (card.dataset.url && optimized.includes(card.dataset.url.split('?')[0]));
       card.classList.toggle('active', !!m);
     });
   }
+
+  // Pre-cache in background for future instant loads
+  cacheWallpaperLocally(optimized);
 
   if (notify) {
     showToast(`Background updated: ${title}`);
@@ -835,6 +920,18 @@ function initSettingsPanel(initialState) {
     });
   }
 
+  // Unsplash API Key input
+  const unsplashApiKeyInput = document.getElementById('unsplash-api-key-input');
+  if (unsplashApiKeyInput) {
+    unsplashApiKeyInput.value = bgState.unsplashApiKey || '';
+    unsplashApiKeyInput.addEventListener('change', async () => {
+      const key = unsplashApiKeyInput.value.trim();
+      bgState.unsplashApiKey = key;
+      await StorageService.set('unsplashApiKey', key);
+      showToast(key ? 'Unsplash API key saved' : 'Unsplash API key cleared');
+    });
+  }
+
   async function searchUnsplashInPanel(query, autoApply = true) {
     const q = (query || '').trim();
     if (!q) return;
@@ -843,59 +940,134 @@ function initSettingsPanel(initialState) {
       galleryStatus.innerHTML = `<span class="wallpaper-loading-spinner"></span><span>Searching "${q}"...</span>`;
     }
 
-    try {
-      const response = await fetch(`https://unsplash.com/napi/search/photos?query=${encodeURIComponent(q)}&per_page=18`);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = await response.json();
+    let list = [];
 
-      if (data && data.results && data.results.length > 0) {
-        if (galleryGrid) galleryGrid.innerHTML = '';
-        if (galleryStatus) galleryStatus.innerHTML = `<span>Unsplash: "${q}"</span>`;
-        if (galleryCount) galleryCount.textContent = `${data.results.length} Photos`;
+    // 1. Direct Image URL / Photo Link Input
+    if (q.startsWith('http://') || q.startsWith('https://')) {
+      let fullUrl = q;
+      let title = 'Web Wallpaper';
+      let author = 'Online Source';
 
-        data.results.forEach((r, idx) => {
-          const author = r.user ? r.user.name : 'Unsplash';
-          const title = (r.description || r.alt_description || q).slice(0, 24);
-          const fullUrl = extractBestUnsplashUrl(r.urls, 1920, 75);
-          const thumbUrl = (r.urls && (r.urls.small || r.urls.thumb)) || fullUrl;
-
-          const card = document.createElement('button');
-          card.className = 'wallpaper-thumb-card';
-          card.type = 'button';
-          card.dataset.url = fullUrl;
-          card.dataset.title = title;
-          card.dataset.author = author;
-          card.title = `${title} — by ${author}`;
-
-          if (idx === 0 && autoApply) card.classList.add('active');
-
-          card.innerHTML = `
-            <img src="${thumbUrl}" alt="${title}" class="wallpaper-thumb-img" loading="lazy">
-            <div class="wallpaper-thumb-overlay">
-              <span class="wallpaper-thumb-name">${title}</span>
-              <span class="wallpaper-thumb-check">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-              </span>
-            </div>
-          `;
-          galleryGrid.appendChild(card);
-        });
-
-        if (autoApply && data.results[0]) {
-          const top = data.results[0];
-          const fullUrl = extractBestUnsplashUrl(top.urls, 1920, 75);
-          const title = (top.description || top.alt_description || q).slice(0, 24);
-          const author = top.user ? top.user.name : 'Unsplash';
-          await updateActiveUnsplashWallpaper(fullUrl, title, author, true);
+      if (fullUrl.includes('images.unsplash.com')) {
+        fullUrl = optimizeUnsplashUrl(fullUrl);
+        title = 'Unsplash Photo';
+        author = 'Unsplash Creator';
+      } else if (fullUrl.includes('unsplash.com/photos/')) {
+        const m = fullUrl.match(/photos\/(?:[\w-]+-)?([a-zA-Z0-9_-]+)/);
+        if (m && m[1]) {
+          fullUrl = `https://images.unsplash.com/photo-${m[1]}?w=1920&q=75&auto=format&fit=crop`;
+          title = 'Unsplash Photo';
+          author = 'Unsplash';
         }
-      } else {
-        if (galleryStatus) galleryStatus.innerHTML = `<span>No results for "${q}"</span>`;
-        showToast(`No results for "${q}"`);
       }
-    } catch (err) {
-      console.warn('Search fallback:', err.message);
-      showToast(`Search error, using curated pool`);
+
+      list = [{
+        url: fullUrl,
+        thumb: fullUrl,
+        title,
+        author
+      }];
     }
+
+    // 2. Official Unsplash API (if API Key provided)
+    const apiKey = (bgState.unsplashApiKey || '').trim();
+    if (list.length === 0 && apiKey) {
+      try {
+        const res = await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(q)}&per_page=18&orientation=landscape`, {
+          headers: { 'Authorization': `Client-ID ${apiKey}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.results && data.results.length > 0) {
+            list = data.results.map(r => ({
+              url: extractBestUnsplashUrl(r.urls, 1920, 75),
+              thumb: (r.urls && (r.urls.small || r.urls.thumb)) || extractBestUnsplashUrl(r.urls, 400, 70),
+              title: (r.description || r.alt_description || q).slice(0, 24),
+              author: r.user ? r.user.name : 'Unsplash'
+            }));
+          }
+        }
+      } catch (err) {
+        console.warn('Unsplash API search failed:', err.message);
+      }
+    }
+
+    // 3. Live Dynamic Search via Ultra-HD Wallpaper Engine (Keyless, 1080p/4K)
+    if (list.length === 0) {
+      try {
+        const res = await fetch(`https://wallhaven.cc/api/v1/search?q=${encodeURIComponent(q)}&purity=100&sorting=relevance`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.data && data.data.length > 0) {
+            list = data.data.slice(0, 18).map(item => ({
+              url: item.path,
+              thumb: (item.thumbs && item.thumbs.small) || item.path,
+              title: (q.charAt(0).toUpperCase() + q.slice(1) + ' #' + item.id).slice(0, 24),
+              author: (item.uploader && item.uploader.username) || 'HD Wallpaper'
+            }));
+          }
+        }
+      } catch (err) {
+        console.warn('Live wallpaper search failed, using curated pool:', err.message);
+      }
+    }
+
+    // 4. Curated Offline Fallback Pool
+    if (list.length === 0) {
+      const curated = getWallpapersForCategoryOrQuery(q, q);
+      list = curated.map(item => ({
+        url: item.url,
+        thumb: item.url.replace('&w=1920', '&w=400'),
+        title: item.title,
+        author: item.author
+      }));
+    }
+
+    if (list && list.length > 0) {
+      if (galleryGrid) galleryGrid.innerHTML = '';
+      if (galleryStatus) galleryStatus.innerHTML = `<span>Results: "${q}"</span>`;
+      if (galleryCount) galleryCount.textContent = `${list.length} Photos`;
+
+      const currentActiveUrl = optimizeUnsplashUrl(bgState.url || '');
+
+      list.forEach((item, idx) => {
+        const card = document.createElement('button');
+        card.className = 'wallpaper-thumb-card';
+        card.type = 'button';
+        card.dataset.url = item.url;
+        card.dataset.title = item.title;
+        card.dataset.author = item.author;
+        card.title = `${item.title} — by ${item.author}`;
+
+        const isCurrent = (optimizeUnsplashUrl(item.url) === currentActiveUrl);
+        if ((autoApply && idx === 0) || (!autoApply && isCurrent)) {
+          card.classList.add('active');
+        }
+
+        card.innerHTML = `
+          <img src="${item.thumb}" alt="${item.title}" class="wallpaper-thumb-img" loading="lazy">
+          <div class="wallpaper-thumb-overlay">
+            <span class="wallpaper-thumb-name">${item.title}</span>
+            <span class="wallpaper-thumb-check">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+          </div>
+        `;
+        galleryGrid.appendChild(card);
+      });
+
+      if (autoApply && list[0]) {
+        await updateActiveUnsplashWallpaper(list[0].url, list[0].title, list[0].author, true);
+      }
+    } else {
+      if (galleryStatus) galleryStatus.innerHTML = `<span>No results for "${q}"</span>`;
+      showToast(`No results for "${q}"`);
+    }
+  }
+
+  // Populate gallery with current category on start
+  if (galleryGrid) {
+    searchUnsplashInPanel(bgState.unsplashCategory || 'technology', false);
   }
 
   if (btnUnsplashSearch && unsplashSearchInput) {
@@ -933,6 +1105,10 @@ function initSettingsPanel(initialState) {
       const title = card.dataset.title || 'Unsplash Photo';
       const author = card.dataset.author || 'Unsplash Creator';
       if (url) {
+        bgState.source = 'unsplash';
+        const unsplashRadio = document.getElementById('source-unsplash');
+        if (unsplashRadio) unsplashRadio.checked = true;
+        switchBgPanel('unsplash');
         await updateActiveUnsplashWallpaper(url, title, author, true);
       }
     });
@@ -942,7 +1118,15 @@ function initSettingsPanel(initialState) {
   const customUrlInput = document.getElementById('custom-url-input');
   const btnApplyCustomUrl = document.getElementById('btn-apply-custom-url');
 
-  if (customUrlInput) customUrlInput.value = bgState.customUrl || '';
+  if (customUrlInput) {
+    customUrlInput.value = bgState.customUrl || '';
+    customUrlInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        btnApplyCustomUrl?.click();
+      }
+    });
+  }
   if (btnApplyCustomUrl && customUrlInput) {
     btnApplyCustomUrl.addEventListener('click', async () => {
       const url = customUrlInput.value.trim();
@@ -957,6 +1141,7 @@ function initSettingsPanel(initialState) {
       applyBackground(bgState);
       await StorageService.set('bgSource', 'custom-url');
       await StorageService.set('customWallpaperUrl', url);
+      await StorageService.set('cachedWallpaperDataUrl', '');
       showToast('Custom URL background applied');
     });
   }
@@ -1001,6 +1186,7 @@ function initSettingsPanel(initialState) {
       await StorageService.set('bgSource', 'local-image');
       await StorageService.set('localImageData', dataUrl);
       await StorageService.set('localImageName', file.name);
+      await StorageService.set('cachedWallpaperDataUrl', '');
       showToast(`Local image applied: ${file.name}`);
     };
     reader.readAsDataURL(file);
@@ -1052,6 +1238,9 @@ function initSettingsPanel(initialState) {
 
   gradientChips.forEach(chip => {
     chip.style.background = chip.dataset.gradient;
+    if (chip.dataset.gradient === bgState.gradient) {
+      chip.classList.add('active');
+    }
     chip.addEventListener('click', async () => {
       gradientChips.forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
@@ -1063,11 +1252,15 @@ function initSettingsPanel(initialState) {
       applyBackground(bgState);
       await StorageService.set('bgSource', 'solid-gradient');
       await StorageService.set('solidGradientValue', grad);
+      await StorageService.set('cachedWallpaperDataUrl', '');
       showToast(`Applied ${chip.title || 'Gradient'}`);
     });
   });
 
   if (customSolidColor) {
+    if (bgState.gradient && bgState.gradient.startsWith('#') && bgState.gradient.length === 7) {
+      customSolidColor.value = bgState.gradient;
+    }
     customSolidColor.addEventListener('input', async (e) => {
       const col = e.target.value;
       bgState.source = 'solid-gradient';
@@ -1077,6 +1270,7 @@ function initSettingsPanel(initialState) {
       applyBackground(bgState);
       await StorageService.set('bgSource', 'solid-gradient');
       await StorageService.set('solidGradientValue', col);
+      await StorageService.set('cachedWallpaperDataUrl', '');
     });
   }
 

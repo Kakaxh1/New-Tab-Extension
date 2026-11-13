@@ -167,8 +167,83 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       sendResponse({ success: true });
     });
     return true;
+  } else if (msg && msg.action === 'getTabHeaders') {
+    const cached = tabHeadersCache.get(msg.tabId);
+    sendResponse({ success: !!cached, data: cached || null });
+    return false;
   }
 });
+
+// ==========================================================================
+// HTTP RESPONSE HEADERS CAPTURE & CACHE (MAIN FRAME)
+// ==========================================================================
+const tabHeadersCache = new Map();
+
+function setupHeadersCapture() {
+  if (!chrome.webRequest || !chrome.webRequest.onHeadersReceived) return;
+
+  const filter = {
+    urls: ['<all_urls>'],
+    types: ['main_frame']
+  };
+
+  const onHeadersReceived = (details) => {
+    if (!details || details.tabId < 0) return;
+
+    const headersMap = {};
+    const rawHeaders = [];
+
+    if (details.responseHeaders && Array.isArray(details.responseHeaders)) {
+      for (const h of details.responseHeaders) {
+        if (!h || !h.name) continue;
+        const lower = h.name.toLowerCase();
+        const val = h.value || '';
+        if (headersMap[lower]) {
+          headersMap[lower] += ', ' + val;
+        } else {
+          headersMap[lower] = val;
+        }
+        rawHeaders.push({ name: h.name, value: val });
+      }
+    }
+
+    tabHeadersCache.set(details.tabId, {
+      tabId: details.tabId,
+      url: details.url,
+      statusCode: details.statusCode,
+      statusLine: details.statusLine || `HTTP ${details.statusCode}`,
+      headers: headersMap,
+      rawHeaders: rawHeaders,
+      timestamp: Date.now()
+    });
+  };
+
+  try {
+    chrome.webRequest.onHeadersReceived.addListener(
+      onHeadersReceived,
+      filter,
+      ['responseHeaders', 'extraHeaders']
+    );
+  } catch (e1) {
+    try {
+      chrome.webRequest.onHeadersReceived.addListener(
+        onHeadersReceived,
+        filter,
+        ['responseHeaders']
+      );
+    } catch (e2) {
+      console.error('Failed to register onHeadersReceived listener:', e2);
+    }
+  }
+}
+
+setupHeadersCapture();
+
+if (chrome.tabs && chrome.tabs.onRemoved) {
+  chrome.tabs.onRemoved.addListener((tabId) => {
+    tabHeadersCache.delete(tabId);
+  });
+}
 
 // Main world injection function executed on page navigation
 function injectMainWorldSpoof(spoofedUa, platform) {

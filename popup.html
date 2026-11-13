@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VAPT Target Auditor Pro</title>
+  <link rel="stylesheet" href="css/popup.css">
+</head>
+<body class="popup-body">
+  <!-- Subtle Ambient Cyber Lighting -->
+  <div class="popup-ambient-bg" aria-hidden="true"></div>
+
+  <!-- Top Application Bar -->
+  <header class="popup-header">
+    <div class="popup-brand">
+      <div class="brand-radar">
+        <span class="radar-core"></span>
+        <span class="radar-pulse"></span>
+      </div>
+      <div class="brand-text">
+        <div class="brand-title-row">
+          <span class="brand-title">VAPT AUDITOR</span>
+          <span class="brand-badge-pro">PRO HUD</span>
+        </div>
+        <span class="brand-sub">Active Target Security Intelligence</span>
+      </div>
+    </div>
+    <div class="popup-header-actions">
+      <button id="open-newtab-btn" class="header-action-btn" title="Open Full VAPT Dashboard in New Tab" type="button">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+          <polyline points="15 3 21 3 21 9"/>
+          <line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
+        <span>Dashboard</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Active Target Context Card -->
+  <section class="target-card">
+    <div class="target-card-accent" aria-hidden="true"></div>
+    <div class="target-top-row">
+      <div class="target-meta-pills">
+        <span id="target-protocol-badge" class="meta-pill pill-https">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <span id="protocol-text">HTTPS</span>
+        </span>
+        <span id="target-status-pill" class="meta-pill pill-status-live">
+          <span class="status-live-dot"></span>
+          <span>AUDIT ACTIVE</span>
+        </span>
+        <span id="target-port-pill" class="meta-pill pill-port">PORT 443</span>
+      </div>
+      <div class="target-actions">
+        <button id="set-scope-btn" class="action-chip chip-primary" title="Set this domain as active scope across Dashboard &amp; Dorks" type="button">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="6"/>
+            <circle cx="12" cy="12" r="2"/>
+          </svg>
+          Set Scope
+        </button>
+        <button id="clip-to-notes-btn" class="action-chip chip-secondary" title="Clip target URL to LAN Shared Notes" type="button">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+          </svg>
+          Clip
+        </button>
+      </div>
+    </div>
+
+    <div class="target-host-row">
+      <div class="target-host-info">
+        <span class="target-label">ASSESSMENT TARGET</span>
+        <span id="target-hostname" class="target-hostname" title="Active Hostname">target.example.com</span>
+      </div>
+      <button id="copy-target-url-btn" class="target-copy-icon" title="Copy active target URL" type="button">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="target-url-row">
+      <span id="target-full-url" class="target-url-text">https://target.example.com/</span>
+    </div>
+  </section>
+
+  <!-- Segmented Navigation Tabs -->
+  <nav class="popup-nav">
+    <button class="nav-tab active" data-tab="tab-recon" type="button">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      <span>Headers &amp; Recon</span>
+    </button>
+    <button class="nav-tab" data-tab="tab-audit" type="button">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="22" y1="12" x2="18" y2="12"/>
+        <line x1="6" y1="12" x2="2" y2="12"/>
+        <line x1="12" y1="6" x2="12" y2="2"/>
+        <line x1="12" y1="22" x2="12" y2="18"/>
+      </svg>
+      <span>Page DOM Audit</span>
+    </button>
+    <button class="nav-tab" data-tab="tab-ua" type="button">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+        <line x1="8" y1="21" x2="16" y2="21"/>
+        <line x1="12" y1="17" x2="12" y2="21"/>
+      </svg>
+      <span>UA Spoofer</span>
+    </button>
+    <button class="nav-tab" data-tab="tab-lan" type="button">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
+        <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
+        <line x1="6" y1="6" x2="6.01" y2="6"/>
+        <line x1="6" y1="18" x2="6.01" y2="18"/>
+      </svg>
+      <span>LAN Notes</span>
+    </button>
+  </nav>
+
+  <!-- TAB PANES CONTAINER -->
+  <main class="popup-main">
+    
+    <!-- =====================================================================
+         TAB 1: RECON & SECURITY HEADERS AUDIT
+         ===================================================================== -->
+    <div id="tab-recon" class="tab-pane active">
+      <!-- Executive Posture Score Card -->
+      <div class="posture-card">
+        <div class="posture-header">
+          <div class="posture-title-wrap">
+            <span class="posture-badge-label">SECURITY HEADERS AUDIT</span>
+            <span class="posture-subtitle">HTTP Protocol Wire Verification</span>
+          </div>
+          <div class="posture-controls">
+            <span id="headers-score-badge" class="score-badge score-calculating">Analyzing...</span>
+            <button id="refresh-headers-btn" class="icon-refresh-btn" title="Reload active page and re-intercept HTTP response wire headers" type="button">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Headers Summary Breakdown -->
+        <div id="posture-breakdown-bar" class="posture-breakdown-bar">
+          <span class="posture-stat stat-pass"><span id="count-pass">0</span> ENFORCED</span>
+          <span class="posture-stat stat-warn"><span id="count-warn">0</span> WEAK / OPTIONAL</span>
+          <span class="posture-stat stat-fail"><span id="count-fail">0</span> ABSENT</span>
+        </div>
+
+        <!-- Verified Headers List -->
+        <div id="headers-audit-list" class="headers-audit-list">
+          <div class="loading-state">
+            <span class="spinner-dot"></span>
+            <span>Intercepting HTTP network wire headers...</span>
+          </div>
+        </div>
+
+        <!-- Tech Banner Leakage Box -->
+        <div id="server-tech-leak" class="server-tech-leak" style="display:none;">
+          <div class="leak-header">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <span>DISCLOSED BACKEND TECHNOLOGIES</span>
+          </div>
+          <div id="server-tech-chips" class="server-tech-chips"></div>
+        </div>
+
+        <!-- Raw Wire Headers Viewer -->
+        <div id="raw-headers-wrap" class="raw-headers-wrap" style="display:none;">
+          <div class="raw-headers-header">
+            <div class="status-wrap">
+              <span class="raw-label">STATUS:</span>
+              <span id="http-status-pill" class="http-status-pill">HTTP 200 OK</span>
+            </div>
+            <div class="raw-actions">
+              <button id="toggle-raw-headers-btn" class="btn-text-xs" type="button">Inspect Raw Stream</button>
+              <button id="copy-raw-headers-btn" class="btn-text-xs" type="button" style="display:none;">Copy All</button>
+            </div>
+          </div>
+          <pre id="raw-headers-pre" class="raw-headers-pre" style="display:none;"></pre>
+        </div>
+      </div>
+
+      <!-- Quick Scoped Target Dorks -->
+      <div class="audit-section">
+        <div class="section-header-row">
+          <div class="section-title-wrap">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <h3 class="section-title">Offensive Recon Matrix</h3>
+          </div>
+          <span class="section-hint">Scoped: site:<span id="dork-hint-host">target</span></span>
+        </div>
+        <div class="dorks-chips-grid">
+          <button class="dork-chip" data-dork="filetype:env OR filetype:log OR filetype:yml OR filetype:bak OR filetype:sql" type="button">
+            <span class="chip-badge-tag">CONFIGS</span>
+            <span class="chip-title">.env / Log / Backups</span>
+          </button>
+          <button class="dork-chip" data-dork="inurl:admin OR inurl:login OR inurl:cpanel OR inurl:dashboard OR inurl:portal" type="button">
+            <span class="chip-badge-tag">AUTH</span>
+            <span class="chip-title">Admin &amp; Login Portals</span>
+          </button>
+          <button class="dork-chip" data-dork="inurl:api OR inurl:swagger OR inurl:graphql OR inurl:openapi OR inurl:v1" type="button">
+            <span class="chip-badge-tag">APIS</span>
+            <span class="chip-title">API &amp; Swagger Schemas</span>
+          </button>
+          <button class="dork-chip" data-dork="intitle:&quot;index of&quot; OR intitle:&quot;parent directory&quot;" type="button">
+            <span class="chip-badge-tag">INDEX</span>
+            <span class="chip-title">Directory Indexing</span>
+          </button>
+          <button class="dork-chip" data-dork="ext:action OR ext:jsp OR ext:php OR ext:asp OR ext:do" type="button">
+            <span class="chip-badge-tag">SCRIPTS</span>
+            <span class="chip-title">Dynamic Endpoints</span>
+          </button>
+          <button class="dork-chip" data-dork="&quot;password&quot; OR &quot;secret&quot; OR &quot;token&quot; OR &quot;api_key&quot; filetype:txt" type="button">
+            <span class="chip-badge-tag">LEAKS</span>
+            <span class="chip-title">Credential Exposures</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- External Intelligence Services -->
+      <div class="audit-section">
+        <div class="section-header-row">
+          <div class="section-title-wrap">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            <h3 class="section-title">External Threat Intelligence</h3>
+          </div>
+        </div>
+        <div class="osint-links-grid">
+          <a id="osint-shodan" class="osint-card-btn" target="_blank" rel="noreferrer" href="#">
+            <span class="osint-card-name">Shodan</span>
+            <span class="osint-card-sub">Host Intel</span>
+          </a>
+          <a id="osint-crtsh" class="osint-card-btn" target="_blank" rel="noreferrer" href="#">
+            <span class="osint-card-name">crt.sh</span>
+            <span class="osint-card-sub">Cert Logs</span>
+          </a>
+          <a id="osint-vt" class="osint-card-btn" target="_blank" rel="noreferrer" href="#">
+            <span class="osint-card-name">VirusTotal</span>
+            <span class="osint-card-sub">Domain Rep</span>
+          </a>
+          <a id="osint-wayback" class="osint-card-btn" target="_blank" rel="noreferrer" href="#">
+            <span class="osint-card-name">Wayback</span>
+            <span class="osint-card-sub">Hist Archive</span>
+          </a>
+          <a id="osint-urlscan" class="osint-card-btn" target="_blank" rel="noreferrer" href="#">
+            <span class="osint-card-name">URLScan</span>
+            <span class="osint-card-sub">Page Scan</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- =====================================================================
+         TAB 2: PAGE AUDIT (DOM, FORMS, CLICKJACKING, ENDPOINTS)
+         ===================================================================== -->
+    <div id="tab-audit" class="tab-pane">
+      <!-- Clickjacking Live Frame Test -->
+      <div class="audit-section">
+        <div class="section-header-row">
+          <div class="section-title-wrap">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+              <line x1="8" y1="21" x2="16" y2="21"/>
+              <line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+            <h3 class="section-title">Clickjacking Live Framing Test</h3>
+          </div>
+          <button id="run-clickjack-btn" class="btn-xs btn-primary-accent" type="button">Run Test</button>
+        </div>
+        <div id="clickjack-status-box" class="clickjack-status-box">
+          <div class="cj-status-content">
+            <span class="cj-status-badge" id="cj-badge">TEST READY</span>
+            <span class="cj-status-text" id="cj-status-text">Evaluates if the active page can be embedded across origins without X-Frame-Options or frame-ancestors restrictions.</span>
+          </div>
+        </div>
+        <div id="clickjack-frame-container" class="clickjack-frame-container" style="display:none;">
+          <div class="cj-frame-header">
+            <span>Sandboxed Frame Render (Cross-Origin Verification)</span>
+            <button id="close-cj-preview-btn" class="btn-text-xs" type="button">Close</button>
+          </div>
+          <iframe id="clickjack-iframe" class="clickjack-iframe" sandbox="allow-same-origin allow-scripts"></iframe>
+        </div>
+      </div>
+
+      <!-- Forms & Hidden Inputs Inspector -->
+      <div class="audit-section">
+        <div class="section-header-row">
+          <div class="section-title-wrap">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <line x1="9" y1="9" x2="15" y2="9"/>
+              <line x1="9" y1="15" x2="15" y2="15"/>
+            </svg>
+            <h3 class="section-title">DOM Form &amp; Input Telemetry</h3>
+          </div>
+          <button id="scan-forms-btn" class="icon-refresh-btn" title="Re-scan DOM inputs" type="button">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Metric HUD Cards -->
+        <div class="stats-summary-grid">
+          <div class="stat-box">
+            <span class="stat-number" id="stat-forms-count">--</span>
+            <span class="stat-label">DOM FORMS</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-number" id="stat-inputs-count">--</span>
+            <span class="stat-label">TOTAL INPUTS</span>
+          </div>
+          <div class="stat-box highlight-amber">
+            <span class="stat-number" id="stat-hidden-count">--</span>
+            <span class="stat-label">HIDDEN FIELDS</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-number" id="stat-passwords-count">--</span>
+            <span class="stat-label">PASSWORDS</span>
+          </div>
+        </div>
+
+        <!-- Big Cyber Action Injection Button -->
+        <button id="reveal-hidden-fields-btn" class="btn-cyber-action" type="button">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          <span>Reveal &amp; Unlock Hidden Fields (Live Injection)</span>
+        </button>
+
+        <!-- Hidden inputs list -->
+        <div id="hidden-inputs-list" class="hidden-inputs-list">
+          <div class="empty-state">No hidden fields discovered yet. Click re-scan.</div>
+        </div>
+      </div>
+
+      <!-- Page Endpoints & JS Scraper -->
+      <div class="audit-section">
+        <div class="section-header-row">
+          <div class="section-title-wrap">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <polyline points="16 18 22 12 16 6"/>
+              <polyline points="8 6 2 12 8 18"/>
+            </svg>
+            <h3 class="section-title">Discovered Endpoints &amp; Scripts</h3>
+          </div>
+          <span id="endpoints-count-badge" class="count-badge">0 items</span>
+        </div>
+        <div class="endpoints-control-bar">
+          <input type="text" id="endpoints-filter-input" class="search-field" placeholder="Filter endpoints (/api, .json, v1)..." spellcheck="false">
+          <button id="copy-all-endpoints-btn" class="btn-xs btn-secondary" type="button">Copy All</button>
+          <button id="scrape-endpoints-btn" class="btn-xs btn-primary-accent" type="button">Scrape</button>
+        </div>
+        <div id="endpoints-list-box" class="endpoints-list-box">
+          <div class="empty-state">Click "Scrape" to inspect loaded script bundles and inline API endpoints.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =====================================================================
+         TAB 3: USER-AGENT & ORIGIN SPOOFER
+         ===================================================================== -->
+    <div id="tab-ua" class="tab-pane">
+      <div class="audit-section">
+        <div class="section-header-row">
+          <div class="section-title-wrap">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+              <line x1="8" y1="21" x2="16" y2="21"/>
+              <line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+            <h3 class="section-title">Active Network Identity</h3>
+          </div>
+          <span id="active-ua-pill" class="ua-status-pill status-native">Native Browser</span>
+        </div>
+        <p class="section-subtext">Dynamically overrides declarativeNetRequest HTTP request headers and Main-World JavaScript Navigator prototype.</p>
+        
+        <div class="ua-presets-grid">
+          <button class="ua-preset-btn active" data-ua="native" type="button">
+            <div class="preset-left">
+              <span class="preset-name">Native Browser</span>
+              <span class="preset-desc">Standard Chrome viewport and headers</span>
+            </div>
+            <span class="preset-tag">DEFAULT</span>
+          </button>
+          <button class="ua-preset-btn" data-ua="googlebot-desktop" type="button">
+            <div class="preset-left">
+              <span class="preset-name">Googlebot 2.1 (Desktop)</span>
+              <span class="preset-desc">Bypass soft paywalls &amp; view bot-specific routes</span>
+            </div>
+            <span class="preset-tag tag-bot">BOT</span>
+          </button>
+          <button class="ua-preset-btn" data-ua="googlebot-mobile" type="button">
+            <div class="preset-left">
+              <span class="preset-name">Googlebot Mobile</span>
+              <span class="preset-desc">Smartphone crawler profile</span>
+            </div>
+            <span class="preset-tag tag-bot">MOBILE</span>
+          </button>
+          <button class="ua-preset-btn" data-ua="iphone-safari" type="button">
+            <div class="preset-left">
+              <span class="preset-name">Apple iPhone (iOS 17)</span>
+              <span class="preset-desc">Mobile Safari browser client</span>
+            </div>
+            <span class="preset-tag">IOS</span>
+          </button>
+          <button class="ua-preset-btn" data-ua="android-chrome" type="button">
+            <div class="preset-left">
+              <span class="preset-name">Android Mobile (Pixel)</span>
+              <span class="preset-desc">Mobile Chrome Android profile</span>
+            </div>
+            <span class="preset-tag">ANDROID</span>
+          </button>
+          <button class="ua-preset-btn" data-ua="burpsuite" type="button">
+            <div class="preset-left">
+              <span class="preset-name">Pentest Audit / Burp</span>
+              <span class="preset-desc">Custom security assessment identifier</span>
+            </div>
+            <span class="preset-tag tag-sec">SECURITY</span>
+          </button>
+          <button class="ua-preset-btn" data-ua="tor-linux" type="button">
+            <div class="preset-left">
+              <span class="preset-name">Tor Browser (Linux)</span>
+              <span class="preset-desc">Anonymous Unix browser identity</span>
+            </div>
+            <span class="preset-tag">UNIX</span>
+          </button>
+        </div>
+
+        <!-- Custom UA Input -->
+        <div class="custom-ua-section">
+          <label class="field-label" for="custom-ua-input">Custom User-Agent Signature:</label>
+          <div class="custom-ua-bar">
+            <input type="text" id="custom-ua-input" class="search-field" placeholder="Mozilla/5.0 (Custom Pentest Probe)..." spellcheck="false">
+            <button id="apply-custom-ua-btn" class="btn-xs btn-primary-accent" type="button">Apply</button>
+          </div>
+        </div>
+
+        <div class="ua-footer-actions">
+          <label class="toggle-control">
+            <input type="checkbox" id="auto-reload-toggle" checked>
+            <span class="toggle-label">Auto-reload active tab on switch</span>
+          </label>
+          <button id="reset-ua-btn" class="btn-xs btn-secondary" type="button">Reset to Native</button>
+        </div>
+      </div>
+
+      <!-- WAF / Reverse Proxy Origin Bypass Headers -->
+      <div class="audit-section">
+        <div class="section-header-row">
+          <div class="section-title-wrap">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+            <h3 class="section-title">WAF / Reverse Proxy Bypass Cheatsheet</h3>
+          </div>
+        </div>
+        <p class="section-subtext">Click any payload below to copy ready-to-test header bypasses directly to your clipboard:</p>
+        <div class="bypass-headers-list">
+          <button class="bypass-header-chip" data-copy="X-Forwarded-For: 127.0.0.1" type="button">
+            <span class="copy-tag">COPY</span>
+            <code>X-Forwarded-For: 127.0.0.1</code>
+          </button>
+          <button class="bypass-header-chip" data-copy="X-Originating-IP: 127.0.0.1" type="button">
+            <span class="copy-tag">COPY</span>
+            <code>X-Originating-IP: 127.0.0.1</code>
+          </button>
+          <button class="bypass-header-chip" data-copy="X-Real-IP: 127.0.0.1" type="button">
+            <span class="copy-tag">COPY</span>
+            <code>X-Real-IP: 127.0.0.1</code>
+          </button>
+          <button class="bypass-header-chip" data-copy="X-Custom-IP-Authorization: 127.0.0.1" type="button">
+            <span class="copy-tag">COPY</span>
+            <code>X-Custom-IP-Authorization: 127.0.0.1</code>
+          </button>
+          <button class="bypass-header-chip" data-copy="X-Forwarded-Host: localhost" type="button">
+            <span class="copy-tag">COPY</span>
+            <code>X-Forwarded-Host: localhost</code>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- =====================================================================
+         TAB 4: MINI LAN SHARED NOTES
+         ===================================================================== -->
+    <div id="tab-lan" class="tab-pane">
+      <div class="audit-section lan-section">
+        <div class="lan-header-bar">
+          <div class="lan-status-group">
+            <span class="lan-status-dot" id="lan-popup-dot"></span>
+            <span class="lan-status-label" id="lan-popup-status">Connecting...</span>
+          </div>
+          <div class="lan-actions-group">
+            <button id="lan-popup-clip-btn" class="btn-xs btn-primary-accent" type="button" title="Append current target finding to shared notes">
+              + Clip Target
+            </button>
+            <button id="lan-popup-replace-btn" class="btn-xs btn-secondary" type="button" title="Replace ` to ' (1-click: converts backticks to single quotes in selection or all)">
+              ` &rarr; '
+            </button>
+            <button id="lan-popup-dash-btn" class="btn-xs btn-secondary" type="button" title="Replace em dash (&mdash;) to hyphen (-) (1-click: converts em/en dashes to hyphens in selection or all)">
+              &mdash; &rarr; -
+            </button>
+            <button id="lan-popup-sync-btn" class="btn-xs btn-secondary" type="button" title="Sync now with LAN Server">
+              Sync
+            </button>
+            <button id="lan-popup-copy-btn" class="btn-xs btn-secondary" type="button" title="Copy notes to clipboard">
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <div class="lan-server-hint">
+          <span class="lan-hint-title">LAN SERVER:</span>
+          <span id="lan-popup-srv-url" class="lan-hint-url">http://192.168.1.143:9900</span>
+        </div>
+
+        <textarea id="lan-popup-textarea" class="lan-popup-textarea" placeholder="Shared LAN notes sync across devices... Type findings, endpoints, or credentials here." spellcheck="false"></textarea>
+
+        <div class="lan-footer-bar">
+          <span id="lan-popup-stats" class="lan-stats">0 chars</span>
+          <span id="lan-popup-time" class="lan-time">--:--</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Notification Toast -->
+  <div id="popup-toast" class="popup-toast" style="display:none;">
+    <span id="popup-toast-msg">Copied to clipboard</span>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/popup.js"></script>
+</body>
+</html>

@@ -713,12 +713,21 @@
           <div class="form-row form-row-stack">
             <label for="unsplash-search-input" class="form-label">Search:</label>
             <div class="input-with-action">
-              <input type="text" id="unsplash-search-input" class="form-text-input" value="cyber security" placeholder="e.g. cyber security, matrix, dark..." spellcheck="false" autocomplete="off">
-              <button id="btn-unsplash-search" class="btn-action-primary" type="button" title="Search Unsplash">
+              <input type="text" id="unsplash-search-input" class="form-text-input" value="cyber security" placeholder="e.g. matrix, cyberpunk, tokyo, dark..." spellcheck="false" autocomplete="off">
+              <button id="btn-unsplash-search" class="btn-action-primary" type="button" title="Search Wallpapers Dynamically">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 <span>Search</span>
               </button>
             </div>
+          </div>
+
+          <!-- Optional Unsplash Access Key for Official Unsplash API -->
+          <div class="form-row form-row-stack">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <label for="unsplash-api-key-input" class="form-label" style="margin-bottom:0;">Unsplash API Key (Optional):</label>
+              <a href="https://unsplash.com/developers" target="_blank" rel="noopener noreferrer" style="font-size:0.7rem; color:var(--accent); text-decoration:none;">Get Free Key</a>
+            </div>
+            <input type="password" id="unsplash-api-key-input" class="form-text-input" placeholder="Paste Unsplash Access Key for official API..." spellcheck="false" autocomplete="off">
           </div>
 
           <!-- Category -->

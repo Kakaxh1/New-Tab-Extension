@@ -3554,3 +3554,655 @@ body.is-arrange-mode .widget-card .widget-controls {
   background: rgba(0, 0, 0, 0.04);
 }
 
+
+
+/* ==========================================================================
+   LAN Shared Notes Widget
+   ========================================================================== */
+.widget-lannotes .widget-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 8px 10px 10px;
+  overflow: hidden;
+}
+
+.lannotes-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 7px;
+  min-height: 0;
+  width: 100%;
+}
+
+.lannotes-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.lannotes-status-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.lannotes-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-subtle);
+  flex-shrink: 0;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.lannotes-status-dot.status-synced {
+  background: #10B981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
+}
+
+.lannotes-status-dot.status-editing {
+  background: #F59E0B;
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
+}
+
+.lannotes-status-dot.status-saving {
+  background: #3B82F6;
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.5);
+  animation: lannotes-pulse 1s infinite alternate;
+}
+
+.lannotes-status-dot.status-connecting {
+  background: #60A5FA;
+  animation: lannotes-pulse 1s infinite alternate;
+}
+
+.lannotes-status-dot.status-offline,
+.lannotes-status-dot.status-error {
+  background: #EF4444;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
+}
+
+@keyframes lannotes-pulse {
+  from { opacity: 0.4; }
+  to { opacity: 1; }
+}
+
+.lannotes-status-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lannotes-last-sync {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--text-subtle);
+  white-space: nowrap;
+}
+
+.lannotes-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.lannotes-mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1px;
+  gap: 1px;
+}
+
+.lannotes-mode-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-subtle);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  line-height: 1.2;
+}
+
+.lannotes-mode-btn:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.lannotes-mode-btn.active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 1px 4px var(--accent-glow);
+}
+
+.lannotes-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  padding: 2px 7px;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all var(--transition-fast);
+  line-height: 1.4;
+}
+
+.lannotes-btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: var(--text);
+  border-color: var(--border-hover);
+}
+
+.lannotes-btn.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.lannotes-btn svg {
+  flex-shrink: 0;
+}
+
+.lannotes-config-bar {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+  flex-shrink: 0;
+}
+
+.lannotes-config-bar.is-visible {
+  display: flex;
+}
+
+.lannotes-config-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--text-subtle);
+  white-space: nowrap;
+}
+
+.lannotes-server-input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  padding: 3px 6px;
+  outline: none;
+}
+
+.lannotes-server-input:focus {
+  border-color: var(--accent);
+}
+
+/* Body wrap & view modes */
+.lannotes-body-wrap {
+  flex: 1;
+  display: flex;
+  min-height: 110px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.lannotes-body-wrap.mode-edit .lannotes-textarea {
+  display: block;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+.lannotes-body-wrap.mode-edit .lannotes-preview {
+  display: none;
+}
+
+.lannotes-body-wrap.mode-preview .lannotes-textarea {
+  display: none;
+}
+.lannotes-body-wrap.mode-preview .lannotes-preview {
+  display: block;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.lannotes-body-wrap.mode-split {
+  gap: 8px;
+}
+.lannotes-body-wrap.mode-split .lannotes-textarea {
+  display: block;
+  flex: 1 1 50%;
+  width: 50%;
+  height: 100%;
+  min-width: 0;
+}
+.lannotes-body-wrap.mode-split .lannotes-preview {
+  display: block;
+  flex: 1 1 50%;
+  width: 50%;
+  height: 100%;
+  min-width: 0;
+}
+
+.lannotes-textarea {
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  line-height: 1.5;
+  padding: 8px 10px;
+  resize: none;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color var(--transition-fast);
+}
+
+.lannotes-textarea:focus {
+  border-color: var(--accent);
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.lannotes-textarea::placeholder {
+  color: var(--text-subtle);
+  font-style: italic;
+}
+
+/* Rendered Preview Box */
+.lannotes-preview {
+  background: rgba(5, 8, 14, 0.4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  overflow-y: auto;
+  color: #e2e8f0;
+  font-size: 0.76rem;
+  line-height: 1.55;
+  box-sizing: border-box;
+  user-select: text;
+  cursor: text;
+}
+
+.lannotes-preview:focus {
+  outline: none;
+}
+
+.lannotes-empty-preview {
+  color: var(--text-subtle);
+  font-style: italic;
+  text-align: center;
+  padding: 30px 10px;
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+}
+
+/* Headings */
+.lannotes-h1 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #60a5fa;
+  margin: 6px 0 4px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.lannotes-h2 {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #93c5fd;
+  margin: 6px 0 3px;
+}
+
+.lannotes-h3 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #bfdbfe;
+  margin: 5px 0 2px;
+}
+
+.lannotes-h4 {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  margin: 4px 0 2px;
+}
+
+.lannotes-line {
+  margin: 0 0 3px 0;
+  word-break: break-word;
+}
+
+.lannotes-para-spacer {
+  height: 6px;
+}
+
+/* Markdown & Auto-detected Links */
+.lannotes-link {
+  color: #38bdf8;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 500;
+  word-break: break-all;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0 2px;
+  border-radius: 3px;
+  transition: all 0.16s ease;
+}
+
+.lannotes-link:hover {
+  color: #ffffff;
+  background: rgba(56, 189, 248, 0.22);
+}
+
+.lannotes-link svg {
+  flex-shrink: 0;
+}
+
+/* Inline code */
+.lannotes-inline-code {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #fb7185;
+  background: rgba(244, 63, 94, 0.12);
+  border: 1px solid rgba(244, 63, 94, 0.25);
+  border-radius: 4px;
+  padding: 1px 4px;
+  word-break: break-word;
+}
+
+/* Code blocks */
+.lannotes-codeblock-wrap {
+  margin: 6px 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+  background: rgba(4, 7, 12, 0.95);
+}
+
+.lannotes-codeblock-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.lannotes-codeblock-lang {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: #60a5fa;
+  letter-spacing: 0.5px;
+}
+
+.lannotes-codeblock-copy {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.lannotes-codeblock-copy:hover {
+  background: #3b82f6;
+  color: #fff;
+  border-color: #3b82f6;
+}
+
+.lannotes-codeblock {
+  margin: 0;
+  padding: 6px 8px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: #a5f3fc;
+  overflow-x: auto;
+  line-height: 1.4;
+}
+
+/* Markdown Tables */
+.lannotes-table-wrap {
+  margin: 6px 0;
+  overflow-x: auto;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  background: rgba(8, 12, 20, 0.9);
+  max-width: 100%;
+}
+
+.lannotes-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: #e2e8f0;
+}
+
+.lannotes-table th {
+  background: rgba(66, 133, 244, 0.14);
+  color: #93c5fd;
+  font-weight: 700;
+  padding: 5px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  white-space: nowrap;
+}
+
+.lannotes-table td {
+  padding: 4px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.lannotes-table tr:last-child td {
+  border-bottom: none;
+}
+
+.lannotes-table tr:hover td {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+/* Lists & Tasks */
+.lannotes-list {
+  margin: 4px 0 6px 16px;
+  padding: 0;
+  font-size: 0.75rem;
+}
+
+.lannotes-list li {
+  margin-bottom: 2px;
+}
+
+.lannotes-task-list {
+  list-style: none;
+  margin-left: 0;
+  padding-left: 2px;
+}
+
+.lannotes-task-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-bottom: 3px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.lannotes-task-item:hover .lannotes-checkbox {
+  border-color: #60a5fa;
+}
+
+.lannotes-checkbox {
+  width: 13px;
+  height: 13px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  color: #4ade80;
+  background: rgba(255, 255, 255, 0.04);
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: all 0.15s ease;
+}
+
+.lannotes-checkbox.checked {
+  background: rgba(34, 197, 94, 0.25);
+  border-color: #22c55e;
+}
+
+.lannotes-task-item.is-checked .lannotes-task-label {
+  color: #64748b;
+  text-decoration: line-through;
+}
+
+/* Blockquote & Divider */
+.lannotes-blockquote {
+  margin: 5px 0;
+  padding: 3px 8px;
+  border-left: 3px solid #3b82f6;
+  background: rgba(59, 130, 246, 0.08);
+  color: #94a3b8;
+  font-style: italic;
+  border-radius: 0 4px 4px 0;
+}
+
+.lannotes-hr {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 8px 0;
+}
+
+.lannotes-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--text-subtle);
+}
+
+.lannotes-footer-server {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 50%;
+}
+
+.lannotes-footer-hint {
+  font-size: 0.58rem;
+  color: #60a5fa;
+  opacity: 0.75;
+  white-space: nowrap;
+  display: none;
+}
+
+.lannotes-wrapper.preview-active .lannotes-footer-hint {
+  display: inline;
+}
+
+.lannotes-stats {
+  white-space: nowrap;
+}
+
+/* Light Theme Overrides */
+[data-theme="light"] .lannotes-mode-toggle {
+  background: #e2e8f0;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .lannotes-preview {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] .lannotes-h1,
+[data-theme="light"] .lannotes-h2 {
+  color: #1d4ed8;
+}
+
+[data-theme="light"] .lannotes-h3,
+[data-theme="light"] .lannotes-h4 {
+  color: #1e40af;
+}
+
+[data-theme="light"] .lannotes-link {
+  color: #0284c7;
+}
+
+[data-theme="light"] .lannotes-link:hover {
+  color: #0369a1;
+  background: #e0f2fe;
+}
+
+[data-theme="light"] .lannotes-table-wrap {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] .lannotes-table th {
+  background: #eff6ff;
+  color: #1e40af;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .lannotes-table td {
+  border-color: rgba(0, 0, 0, 0.06);
+  color: #334155;
+}
+
+[data-theme="light"] .lannotes-codeblock-wrap {
+  background: #f1f5f9;
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] .lannotes-codeblock-header {
+  background: #e2e8f0;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .lannotes-codeblock {
+  color: #0f172a;
+}

@@ -29,7 +29,11 @@ Developed by [kakaxh1](https://github.com/Kakaxh1/New-Tab-Extension) • [Portfo
   * **Frosted Light**: Clean slate-white glass aesthetic with soft drop shadows and crisp dark typography.
   *(Toggle instantly with `D` or via Settings).*
 * **Dynamic Wallpaper & Ambient Engine**:
-  * **Unsplash Curated Stream**: Dynamic high-resolution wallpapers across Cyberpunk, Tech, Minimal, Tokyo Night, and Space categories with 1-click shuffle (`B`).
+  * **Dynamic Multi-Tier Search & Wallpaper Engine**:
+    * **Live Dynamic Wallpaper Search**: Real-time keyword search across millions of HD wallpapers (matrix, cyberpunk, tokyo, dark, etc.) without requiring setup.
+    * **Official Unsplash API Integration**: Optional Unsplash API Access Key field in Settings for official Unsplash developer access.
+    * **Direct Photo URL & ID Recognition**: Paste any Unsplash or direct image URL to load and apply immediately.
+    * **Curated Categorized Pools**: Built-in high-resolution collections across Technology, Cyber Security, Hacker, Architecture, Nature, Space, Minimalist, and Abstract Neon with 1-click shuffle (`B`).
   * **Custom Image / URL**: Load any external wallpaper URL or upload local images stored offline.
   * **Cyber Gradients**: Solid colors and built-in hacker gradients (Cyber Void, Deep Matrix, Carbon Fiber, Crimson Eclipse).
   * **Visual Post-Processing**: Real-time adjustable sliders for Background Darkness (0-95%), Frosted Blur (0-25px), Vignette Shadows, and subtle 3D Parallax mouse depth.
@@ -129,7 +133,43 @@ An integrated offensive intelligence workstation accessible via the bottom dock,
 
 ---
 
-### 4. Modular Dashboard Widgets & Freeform Grid
+### 4. Toolbar Popup: Active Target Auditor & In-Browser Toolkit
+
+Clicking the extension icon in the Chrome toolbar transforms the extension into an **active in-browser security auditor** for the website currently open in your browser tab:
+
+* **Active Target HUD**:
+  * Real-time domain, full URL, and protocol audit (`HTTPS` / `HTTP` insecure warning).
+  * **1-Click "Set Scope"**: Automatically updates the New Tab Dork Builder, Scope Tracker, and LAN Notes to the active domain.
+  * **1-Click "Clip to Notes"**: Appends `[Timestamp] Target: URL ("Title")` directly into shared LAN notes.
+* **Security Headers Audit**:
+  * Live response header inspection analyzing `Content-Security-Policy` (CSP), `Strict-Transport-Security` (HSTS), `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, and `CORS Access-Control-Allow-Origin`.
+  * Overall compliance rating (e.g. `5/7 Passed` with Green/Amber/Red status dots).
+  * Technology disclosure banner detecting leaked `Server` and `X-Powered-By` backend versions (e.g. `nginx/1.24`, `Express`, `PHP/8.2`).
+* **Live Clickjacking Framing Test**:
+  * Attempts cross-origin sandboxed framing of the target page.
+  * Instantly reports `VULNERABLE` if framing succeeds or `PROTECTED` if blocked by target `X-Frame-Options` or `CSP frame-ancestors`.
+* **Form & Hidden Input Inspector**:
+  * Scans active tab DOM for total forms, inputs, hidden inputs, and password fields.
+  * Extracts all `<input type="hidden">` names, IDs, and values (CSRF tokens, internal IDs, state flags) with 1-click clipboard copy.
+  * **"Reveal & Unlock Hidden Fields"**: Injects on-page styling to convert all hidden inputs into visible, dashed-amber text boxes with labels, and unlocks all disabled/readonly fields live on the target website.
+* **Page Endpoints & Script Scraper**:
+  * Extracts all loaded `<script src="...">` bundle paths.
+  * Analyzes inline JavaScript using regexes to unearth hidden REST API paths, `/api/...`, `/v1/`, `graphql`, `.json`, and admin routes.
+  * Search/filter bar and 1-click **Copy All Endpoints** to easily generate fuzzing wordlists for Burp Suite or ffuf.
+* **1-Click User-Agent & Header Spoofer**:
+  * Preset buttons to switch identity instantly: Googlebot 2.1, Googlebot Mobile, iPhone Safari (iOS 17), Android Chrome, Pentest Audit / Burp Suite, Tor Browser Linux, or custom string.
+  * "Auto-reload active tab on switch" toggle.
+  * Quick-copy cheat sheet for reverse proxy origin bypass headers (`X-Forwarded-For: 127.0.0.1`, `X-Real-IP`, `X-Originating-IP`).
+* **Mini LAN Shared Notes**:
+  * Compact synchronized notepad connected to your local LAN server (`shared_notes.txt`).
+  * **1-Click Converters**:
+    * **Quote Converter (` ` -> `'`)**: Instantly converts MySQL/Markdown backticks into standard SQL/string single quotes within highlighted text selections or across the full note.
+    * **Em Dash to Hyphen (`—` -> `-`)**: Instantly fixes pasted Word/macOS typography by converting em dashes and en dashes into standard CLI/ASCII hyphens.
+  * Live character stats, manual sync, and target clipper.
+
+---
+
+### 5. Modular Dashboard Widgets & Freeform Grid
 
 Every widget can be freely positioned, resized, or customized on the grid:
 
@@ -155,10 +195,11 @@ Every widget can be freely positioned, resized, or customized on the grid:
   13. **Operational Identity**: Red Team / VAPT mode badge with pulsating core orb.
   14. **System Status**: Real-time network latency ping and browser online status.
   15. **World Clock**: Multiple operational timezones (UTC, EST, GMT, JST).
+  16. **LAN Shared Notes & Markdown Sync**: Local LAN notes synchronization engine (`http://192.168.1.143:9900`). Features split-view Markdown renderer, interactive task checklists, code blocks with 1-click copy, and 1-click **Converters (` ` -> `'` and `—` -> `-`)** for SQL queries, payloads, and CLI flags.
 
 ---
 
-### 5. Slide-Out Tasks & Engagement Drawer (`T`)
+### 6. Slide-Out Tasks & Engagement Drawer (`T`)
 
 Press **`T`** or click the checklist icon in the top-right header to toggle the side drawer:
 * Add tasks with `Enter` or the `+` button.
@@ -169,7 +210,7 @@ Press **`T`** or click the checklist icon in the top-right header to toggle the 
 
 ---
 
-### 6. Bottom Dock Flyouts (Security Toolkit)
+### 7. Bottom Dock Flyouts (Security Toolkit)
 
 Hover or click items on the floating bottom dock for instant access to curated security resources:
 * **Search Flyout**: Quick links to Dork Builder, GHDB, Ahmia, Torch, and GitHub Code Search.
@@ -181,7 +222,7 @@ Hover or click items on the floating bottom dock for instant access to curated s
 
 ---
 
-### 7. Keyboard Navigation & Shortcuts Cheatsheet
+### 8. Keyboard Navigation & Shortcuts Cheatsheet
 
 Press **`?`** or **`H`** to summon the hotkey cheatsheet HUD:
 

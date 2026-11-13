@@ -173,6 +173,14 @@ const WidgetsManager = (() => {
       description: 'Interactive Google dork builder and OSINT reconnaissance library.',
       defaultSize: { cols: 2, rows: 2 },
       render: renderGoogleDorksWidget
+    },
+    lannotes: {
+      id: 'lannotes',
+      title: 'LAN Shared Notes',
+      category: 'tools',
+      description: 'Real-time bidirectional synced notes with your LAN server, markdown preview, tables & auto-links.',
+      defaultSize: { cols: 2, rows: 2 },
+      render: renderLanNotesWidget
     }
   };
 
@@ -216,6 +224,16 @@ const WidgetsManager = (() => {
         await StorageService.set('activeWidgets', activeWidgets);
       }
       await StorageService.set('hasAddedCountdownWidget', true);
+    }
+
+    // Enable LAN Notes widget seamlessly on first run if not yet initialized
+    const hasAddedLanNotes = await StorageService.get('hasAddedLanNotesWidget', false);
+    if (!hasAddedLanNotes) {
+      if (!activeWidgets.includes('lannotes')) {
+        activeWidgets.push('lannotes');
+        await StorageService.set('activeWidgets', activeWidgets);
+      }
+      await StorageService.set('hasAddedLanNotesWidget', true);
     }
 
     ensureAllWidgetPositions();
@@ -1696,6 +1714,869 @@ const WidgetsManager = (() => {
     textarea.placeholder = 'Engagement targets, scratchpad, or payloads...';
     textarea.value = savedNotes;
     container.appendChild(textarea);
+  }
+
+  // ==========================================================================
+  // LAN NOTES MARKDOWN, TABLES & AUTO-LINK PARSER
+  // ==========================================================================
+  function parseLanNotesMarkdown(rawText) {
+    if (!rawText || !rawText.trim()) {
+      return '<div class="lannotes-empty-preview">No notes yet. Switch to Edit mode to write markdown, lists, tables, or URLs.</div>';
+    }
+
+    const text = rawText.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    const lines = text.split('\n');
+    const output = [];
+
+    let inCodeBlock = false;
+    let codeBlockLang = '';
+    let codeBlockLines = [];
+
+    let inTable = false;
+    let tableHeaders = [];
+    let tableAlignments = [];
+    let tableRows = [];
+
+    let inList = false;
+    let listType = null; // 'ul' | 'ol'
+
+    function closeList() {
+      if (inList) {
+        output.push(`</${listType}>`);
+        inList = false;
+        listType = null;
+      }
+    }
+
+    function closeTable() {
+      if (inTable) {
+        let tableHtml = '<div class="lannotes-table-wrap"><table class="lannotes-table">';
+        if (tableHeaders.length > 0) {
+          tableHtml += '<thead><tr>';
+          tableHeaders.forEach((th, idx) => {
+            const align = tableAlignments[idx] || 'left';
+            tableHtml += `<th style="text-align: ${align};">${renderInline(th)}</th>`;
+          });
+          tableHtml += '</tr></thead>';
+        }
+        if (tableRows.length > 0) {
+          tableHtml += '<tbody>';
+          tableRows.forEach(row => {
+            tableHtml += '<tr>';
+            tableHeaders.forEach((_, idx) => {
+              const cell = row[idx] !== undefined ? row[idx] : '';
+              const align = tableAlignments[idx] || 'left';
+              tableHtml += `<td style="text-align: ${align};">${renderInline(cell)}</td>`;
+            });
+            tableHtml += '</tr>';
+          });
+          tableHtml += '</tbody>';
+        }
+        tableHtml += '</table></div>';
+        output.push(tableHtml);
+        inTable = false;
+        tableHeaders = [];
+        tableAlignments = [];
+        tableRows = [];
+      }
+    }
+
+    function closeCodeBlock() {
+      if (inCodeBlock) {
+        const codeContent = escapeHtml(codeBlockLines.join('\n'));
+        const langLabel = codeBlockLang ? escapeHtml(codeBlockLang.toUpperCase()) : 'CODE';
+        output.push(`
+          <div class="lannotes-codeblock-wrap">
+            <div class="lannotes-codeblock-header">
+              <span class="lannotes-codeblock-lang">${langLabel}</span>
+              <button type="button" class="lannotes-codeblock-copy" title="Copy code block">Copy</button>
+            </div>
+            <pre class="lannotes-codeblock"><code>${codeContent}</code></pre>
+          </div>
+        `);
+        inCodeBlock = false;
+        codeBlockLang = '';
+        codeBlockLines = [];
+      }
+    }
+
+    function isTableSeparator(line) {
+      const trimmed = line.trim();
+      if (!trimmed.includes('|')) return false;
+      const parts = trimmed.split('|').filter((val, idx, arr) => {
+        if (idx === 0 && val === '') return false;
+        if (idx === arr.length - 1 && val === '') return false;
+        return true;
+      });
+      if (parts.length === 0) return false;
+      return parts.every(p => /^:?-+:?$/.test(p.trim()));
+    }
+
+    function parseTableCells(line) {
+      const trimmed = line.trim();
+      let parts = trimmed.split('|');
+      if (trimmed.startsWith('|')) parts.shift();
+      if (trimmed.endsWith('|')) parts.pop();
+      return parts.map(p => p.trim());
+    }
+
+    function parseAlignments(line) {
+      const cells = parseTableCells(line);
+      return cells.map(cell => {
+        const c = cell.trim();
+        const left = c.startsWith(':');
+        const right = c.endsWith(':');
+        if (left && right) return 'center';
+        if (right) return 'right';
+        return 'left';
+      });
+    }
+
+    function renderInline(str) {
+      if (!str) return '';
+      let res = escapeHtml(str);
+
+      // Inline Code `code`
+      res = res.replace(/`([^`]+)`/g, '<code class="lannotes-inline-code">$1</code>');
+
+      // Bold **text** or __text__
+      res = res.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      res = res.replace(/__([^_]+)__/g, '<strong>$1</strong>');
+
+      // Italic *text* or _text_
+      res = res.replace(/(^|[^\*])\*([^\*]+)\*([^\*]|$)/g, '$1<em>$2</em>$3');
+      res = res.replace(/(^|[^_])_([^_]+)_([^_]|$)/g, '$1<em>$2</em>$3');
+
+      // Strikethrough ~~text~~
+      res = res.replace(/~~([^~]+)~~/g, '<del>$1</del>');
+
+      // Markdown Links: [label](url)
+      res = res.replace(/\[([^\]]+)\]\((https?:\/\/[^\s\)]+|ftp:\/\/[^\s\)]+|mailto:[^\s\)]+)\)/g, (match, label, url) => {
+        return `<a href="${url}" target="_blank" rel="noreferrer" class="lannotes-link"><span>${label}</span> <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>`;
+      });
+
+      // Auto-detect raw URLs and LAN IPs: http://, https://, ftp://
+      const urlRegex = /(?<!href="|">)(https?:\/\/[^\s<>"'\)]+|ftp:\/\/[^\s<>"'\)]+)/g;
+      res = res.replace(urlRegex, (url) => {
+        let cleanUrl = url;
+        let trailing = '';
+        const m = url.match(/[.,;!?:)]+$/);
+        if (m) {
+          trailing = m[0];
+          cleanUrl = url.slice(0, -trailing.length);
+        }
+        return `<a href="${cleanUrl}" target="_blank" rel="noreferrer" class="lannotes-link"><span>${cleanUrl}</span> <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>${trailing}`;
+      });
+
+      // Auto-detect raw www. domains
+      const wwwRegex = /(?<!href="|">|\/)\b(www\.[a-zA-Z0-9\.\-\/]+[a-zA-Z0-9\-_])/g;
+      res = res.replace(wwwRegex, (match) => {
+        return `<a href="https://${match}" target="_blank" rel="noreferrer" class="lannotes-link"><span>${match}</span> <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>`;
+      });
+
+      return res;
+    }
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const trimmed = line.trim();
+
+      // Code blocks ```
+      if (trimmed.startsWith('```')) {
+        if (inCodeBlock) {
+          closeCodeBlock();
+        } else {
+          closeList();
+          closeTable();
+          inCodeBlock = true;
+          codeBlockLang = trimmed.slice(3).trim();
+          codeBlockLines = [];
+        }
+        continue;
+      }
+
+      if (inCodeBlock) {
+        codeBlockLines.push(line);
+        continue;
+      }
+
+      // Check for Table
+      if (trimmed.includes('|')) {
+        if (!inTable && i + 1 < lines.length && isTableSeparator(lines[i + 1])) {
+          closeList();
+          inTable = true;
+          tableHeaders = parseTableCells(line);
+          tableAlignments = parseAlignments(lines[i + 1]);
+          tableRows = [];
+          i++; // skip separator line
+          continue;
+        } else if (inTable) {
+          if (!isTableSeparator(line)) {
+            tableRows.push(parseTableCells(line));
+          }
+          continue;
+        }
+      } else if (inTable) {
+        closeTable();
+      }
+
+      // Empty line
+      if (!trimmed) {
+        closeList();
+        output.push('<div class="lannotes-para-spacer"></div>');
+        continue;
+      }
+
+      // Headings #, ##, ###, ####
+      const headerMatch = trimmed.match(/^(#{1,4})\s+(.*)$/);
+      if (headerMatch) {
+        closeList();
+        const level = headerMatch[1].length;
+        const content = renderInline(headerMatch[2]);
+        output.push(`<h${level} class="lannotes-h${level}">${content}</h${level}>`);
+        continue;
+      }
+
+      // Horizontal Rule --- or ***
+      if (/^(\-{3,}|\*{3,})$/.test(trimmed)) {
+        closeList();
+        output.push('<hr class="lannotes-hr">');
+        continue;
+      }
+
+      // Blockquote >
+      if (trimmed.startsWith('&gt;') || trimmed.startsWith('>')) {
+        closeList();
+        const quoteText = trimmed.replace(/^(&gt;|>)\s?/, '');
+        output.push(`<blockquote class="lannotes-blockquote">${renderInline(quoteText)}</blockquote>`);
+        continue;
+      }
+
+      // Task list / Checkbox: - [ ] or - [x]
+      const taskMatch = trimmed.match(/^[-*]\s+\[([ xX])\]\s+(.*)$/);
+      if (taskMatch) {
+        if (!inList || listType !== 'ul') {
+          closeList();
+          inList = true;
+          listType = 'ul';
+          output.push('<ul class="lannotes-list lannotes-task-list">');
+        }
+        const isChecked = taskMatch[1].toLowerCase() === 'x';
+        const taskText = renderInline(taskMatch[2]);
+        output.push(`
+          <li class="lannotes-task-item ${isChecked ? 'is-checked' : ''}">
+            <span class="lannotes-checkbox ${isChecked ? 'checked' : ''}">${isChecked ? '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}</span>
+            <span class="lannotes-task-label">${taskText}</span>
+          </li>
+        `);
+        continue;
+      }
+
+      // Bullet List - or *
+      const bulletMatch = trimmed.match(/^[-*]\s+(.*)$/);
+      if (bulletMatch) {
+        if (!inList || listType !== 'ul') {
+          closeList();
+          inList = true;
+          listType = 'ul';
+          output.push('<ul class="lannotes-list">');
+        }
+        output.push(`<li>${renderInline(bulletMatch[1])}</li>`);
+        continue;
+      }
+
+      // Numbered List 1. or 2.
+      const numMatch = trimmed.match(/^\d+\.\s+(.*)$/);
+      if (numMatch) {
+        if (!inList || listType !== 'ol') {
+          closeList();
+          inList = true;
+          listType = 'ol';
+          output.push('<ol class="lannotes-list lannotes-num-list">');
+        }
+        output.push(`<li>${renderInline(numMatch[1])}</li>`);
+        continue;
+      }
+
+      // Regular line
+      closeList();
+      output.push(`<p class="lannotes-line">${renderInline(line)}</p>`);
+    }
+
+    closeList();
+    closeTable();
+    closeCodeBlock();
+
+    return output.join('\n');
+  }
+
+  async function renderLanNotesWidget(container) {
+    let serverUrl = await StorageService.get('lanNotesServerUrl', StorageService.DEFAULTS.lanNotesServerUrl || 'http://192.168.1.143:9900');
+    let cachedNotes = await StorageService.get('lanNotesCachedText', '');
+    let currentMode = await StorageService.get('lanNotesViewMode', 'edit');
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'lannotes-wrapper';
+
+    // Header Toolbar
+    const toolbar = document.createElement('div');
+    toolbar.className = 'lannotes-toolbar';
+    toolbar.innerHTML = `
+      <div class="lannotes-status-wrap">
+        <span class="lannotes-status-dot status-connecting" id="lan-dot"></span>
+        <span class="lannotes-status-label" id="lan-status-label">Connecting...</span>
+        <span class="lannotes-last-sync" id="lan-last-sync">--:--</span>
+      </div>
+      <div class="lannotes-btn-group">
+        <div class="lannotes-mode-toggle" id="lan-mode-toggle">
+          <button class="lannotes-mode-btn" data-mode="edit" id="lan-mode-edit" title="Edit Raw Markdown / Notes (Plaintext)" type="button">Edit</button>
+          <button class="lannotes-mode-btn" data-mode="preview" id="lan-mode-preview" title="Preview Markdown, Links &amp; Tables" type="button">View</button>
+          <button class="lannotes-mode-btn" data-mode="split" id="lan-mode-split" title="Side-by-side Split View" type="button">Split</button>
+        </div>
+        <button class="lannotes-btn" id="lan-sync-btn" title="Sync now with LAN server" type="button">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+          </svg>
+          Sync
+        </button>
+        <button class="lannotes-btn" id="lan-cfg-btn" title="Configure LAN Server URL" type="button">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          IP
+        </button>
+        <button class="lannotes-btn" id="lan-copy-btn" title="Copy notes to clipboard" type="button">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          Copy
+        </button>
+        <button class="lannotes-btn" id="lan-replace-quotes-btn" title="Replace &#96; to &#39; (1-click: replaces backticks with single quotes in selection or all)" type="button">
+          &#96; &rarr; &#39;
+        </button>
+        <button class="lannotes-btn" id="lan-replace-dashes-btn" title="Replace em dash (&mdash;) to hyphen (-) (1-click: converts em/en dashes to hyphens in selection or all)" type="button">
+          &mdash; &rarr; -
+        </button>
+        <button class="lannotes-btn" id="lan-clear-btn" title="Clear notes" type="button">
+          Clear
+        </button>
+      </div>
+    `;
+
+    // Collapsible Config Bar
+    const configBar = document.createElement('div');
+    configBar.className = 'lannotes-config-bar';
+    configBar.innerHTML = `
+      <span class="lannotes-config-label">Server:</span>
+      <input type="text" class="lannotes-server-input" id="lan-ip-input" value="${escapeHtml(serverUrl)}" placeholder="http://192.168.1.143:9900" spellcheck="false" autocomplete="off">
+      <button class="lannotes-btn" id="lan-save-ip-btn" type="button">Save</button>
+      <button class="lannotes-btn" id="lan-default-ip-btn" type="button">Default</button>
+    `;
+
+    // Body Wrap (Textarea + Rendered Markdown Preview)
+    const bodyWrap = document.createElement('div');
+    bodyWrap.className = 'lannotes-body-wrap mode-edit';
+
+    // Textarea
+    const textarea = document.createElement('textarea');
+    textarea.className = 'lannotes-textarea';
+    textarea.placeholder = 'Type or paste notes here (syncs across LAN to shared_notes.txt)...\nSupports Markdown (#, ##, **bold**, `code`), tables (| a | b |), links (https://...), and task checklists (- [ ]).';
+    textarea.value = cachedNotes;
+
+    // Preview
+    const previewEl = document.createElement('div');
+    previewEl.className = 'lannotes-preview';
+    previewEl.title = 'Double-click to edit notes';
+
+    bodyWrap.appendChild(textarea);
+    bodyWrap.appendChild(previewEl);
+
+    // Footer
+    const footer = document.createElement('div');
+    footer.className = 'lannotes-footer';
+    footer.innerHTML = `
+      <span class="lannotes-footer-server" id="lan-footer-srv">${escapeHtml(serverUrl)}</span>
+      <span class="lannotes-footer-hint" id="lan-footer-hint">Double-click preview to edit</span>
+      <span class="lannotes-stats" id="lan-stats">${cachedNotes.length} chars</span>
+    `;
+
+    wrapper.appendChild(toolbar);
+    wrapper.appendChild(configBar);
+    wrapper.appendChild(bodyWrap);
+    wrapper.appendChild(footer);
+    container.appendChild(wrapper);
+
+    // Element references
+    const dotEl = wrapper.querySelector('#lan-dot');
+    const statusLabel = wrapper.querySelector('#lan-status-label');
+    const lastSyncEl = wrapper.querySelector('#lan-last-sync');
+    const syncBtn = wrapper.querySelector('#lan-sync-btn');
+    const cfgBtn = wrapper.querySelector('#lan-cfg-btn');
+    const copyBtn = wrapper.querySelector('#lan-copy-btn');
+    const replaceQuotesBtn = wrapper.querySelector('#lan-replace-quotes-btn');
+    const replaceDashesBtn = wrapper.querySelector('#lan-replace-dashes-btn');
+    const clearBtn = wrapper.querySelector('#lan-clear-btn');
+    const ipInput = wrapper.querySelector('#lan-ip-input');
+    const saveIpBtn = wrapper.querySelector('#lan-save-ip-btn');
+    const defaultIpBtn = wrapper.querySelector('#lan-default-ip-btn');
+    const footerSrv = wrapper.querySelector('#lan-footer-srv');
+    const statsEl = wrapper.querySelector('#lan-stats');
+    const modeBtns = wrapper.querySelectorAll('.lannotes-mode-btn');
+
+    let debounceTimer = null;
+    let isTyping = false;
+    let typingTimer = null;
+    let activeWs = null;
+
+    function getNowTimeString() {
+      return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    function formatTime(val) {
+      if (!val) return getNowTimeString();
+      try {
+        const d = new Date(val);
+        if (!isNaN(d.getTime())) {
+          return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+      } catch {}
+      return String(val).split(' ').pop() || getNowTimeString();
+    }
+
+    function updateStats() {
+      const text = textarea.value;
+      const len = text.length;
+      const linksCount = (text.match(/https?:\/\/[^\s<>"'\)]+|ftp:\/\/[^\s<>"'\)]+|\[[^\]]+\]\(/gi) || []).length;
+      const tablesCount = (text.match(/\|[\s-:]+\|[\s-:]+\|/g) || []).length;
+
+      const extras = [];
+      if (linksCount > 0) extras.push(`${linksCount} ${linksCount === 1 ? 'link' : 'links'}`);
+      if (tablesCount > 0) extras.push(`${tablesCount} ${tablesCount === 1 ? 'table' : 'tables'}`);
+
+      const extraStr = extras.length > 0 ? ` (${extras.join(', ')})` : '';
+      statsEl.textContent = `${len} ${len === 1 ? 'char' : 'chars'}${extraStr}`;
+    }
+
+    function setStatus(state, label) {
+      if (!dotEl || !statusLabel) return;
+      dotEl.className = `lannotes-status-dot status-${state}`;
+      statusLabel.textContent = label;
+    }
+
+    function updatePreview() {
+      const text = textarea.value;
+      previewEl.innerHTML = parseLanNotesMarkdown(text);
+
+      // Wire up code block copy buttons
+      previewEl.querySelectorAll('.lannotes-codeblock-copy').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const codeEl = btn.closest('.lannotes-codeblock-wrap')?.querySelector('code');
+          if (codeEl) {
+            try {
+              await navigator.clipboard.writeText(codeEl.textContent);
+              btn.textContent = 'Copied!';
+              setTimeout(() => { btn.textContent = 'Copy'; }, 1400);
+            } catch {}
+          }
+        });
+      });
+
+      // Wire up interactive task checkboxes
+      previewEl.querySelectorAll('.lannotes-task-item').forEach((item, index) => {
+        item.addEventListener('click', (e) => {
+          if (e.target.closest('a')) return;
+          e.stopPropagation();
+          toggleTaskCheckbox(index);
+        });
+      });
+    }
+
+    function toggleTaskCheckbox(taskIndex) {
+      let cur = 0;
+      const newText = textarea.value.replace(/^([-*]\s+\[)([ xX])(\]\s+.*)$/gm, (match, prefix, status, suffix) => {
+        if (cur === taskIndex) {
+          cur++;
+          const next = status.trim().toLowerCase() === 'x' ? ' ' : 'x';
+          return prefix + next + suffix;
+        }
+        cur++;
+        return match;
+      });
+      if (newText !== textarea.value) {
+        textarea.value = newText;
+        updateStats();
+        updatePreview();
+        saveNotes(newText);
+      }
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      StorageService.set('lanNotesViewMode', mode);
+
+      wrapper.classList.toggle('preview-active', mode === 'preview');
+      modeBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+      });
+
+      bodyWrap.className = `lannotes-body-wrap mode-${mode}`;
+
+      if (mode === 'preview' || mode === 'split') {
+        updatePreview();
+      }
+      if (mode === 'edit') {
+        textarea.focus();
+      }
+    }
+
+    modeBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mode = btn.dataset.mode;
+        if (mode) setMode(mode);
+      });
+    });
+
+    previewEl.addEventListener('dblclick', (e) => {
+      if (e.target.closest('a') || e.target.closest('.lannotes-codeblock-copy') || e.target.closest('.lannotes-task-item')) return;
+      setMode('edit');
+    });
+
+    async function fetchNotes(isSilent = false) {
+      if (isTyping) return;
+      if (!isSilent) setStatus('connecting', 'Connecting...');
+      try {
+        const cleanUrl = serverUrl.replace(/\/+$/, '');
+        const res = await fetch(`${cleanUrl}/api/notes`, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (!isTyping) {
+          const incoming = typeof data.text === 'string' ? data.text : '';
+          if (textarea.value !== incoming) {
+            textarea.value = incoming;
+            StorageService.set('lanNotesCachedText', incoming);
+            updateStats();
+            if (currentMode === 'preview' || currentMode === 'split') {
+              updatePreview();
+            }
+            setStatus('synced', 'Updated from LAN');
+          } else {
+            setStatus('synced', 'Synced');
+          }
+          lastSyncEl.textContent = formatTime(data.updatedAt);
+        }
+      } catch (err) {
+        if (!isTyping) {
+          setStatus('offline', 'Server Offline');
+        }
+      }
+    }
+
+    async function saveNotes(text) {
+      setStatus('saving', 'Saving...');
+      try {
+        const cleanUrl = serverUrl.replace(/\/+$/, '');
+        const res = await fetch(`${cleanUrl}/api/notes`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, force: true })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.ok !== false) {
+          StorageService.set('lanNotesCachedText', text);
+          setStatus('synced', 'Saved');
+          lastSyncEl.textContent = getNowTimeString();
+          isTyping = false;
+        } else {
+          setStatus('error', 'Save Failed');
+        }
+      } catch (err) {
+        setStatus('error', 'Save Failed');
+      }
+    }
+
+    // Auto-save debounced on input
+    textarea.addEventListener('input', () => {
+      isTyping = true;
+      updateStats();
+      if (currentMode === 'split') {
+        updatePreview();
+      }
+      setStatus('editing', 'Editing...');
+
+      clearTimeout(typingTimer);
+      typingTimer = setTimeout(() => {
+        isTyping = false;
+      }, 1400);
+
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        saveNotes(textarea.value);
+      }, 800);
+    });
+
+    // Manual sync button
+    syncBtn.addEventListener('click', () => {
+      fetchNotes(false);
+    });
+
+    // IP Config toggle
+    cfgBtn.addEventListener('click', () => {
+      const isVisible = configBar.classList.toggle('is-visible');
+      cfgBtn.classList.toggle('active', isVisible);
+      if (isVisible) {
+        ipInput.focus();
+        ipInput.select();
+      }
+    });
+
+    // Save IP
+    saveIpBtn.addEventListener('click', async () => {
+      let val = ipInput.value.trim();
+      if (!val) return;
+      if (!val.startsWith('http://') && !val.startsWith('https://')) {
+        val = `http://${val}`;
+      }
+      serverUrl = val;
+      await StorageService.set('lanNotesServerUrl', serverUrl);
+      footerSrv.textContent = serverUrl;
+      configBar.classList.remove('is-visible');
+      cfgBtn.classList.remove('active');
+      setupWebSocket();
+      fetchNotes(false);
+    });
+
+    // Default IP
+    defaultIpBtn.addEventListener('click', async () => {
+      serverUrl = 'http://192.168.1.143:9900';
+      ipInput.value = serverUrl;
+      await StorageService.set('lanNotesServerUrl', serverUrl);
+      footerSrv.textContent = serverUrl;
+      configBar.classList.remove('is-visible');
+      cfgBtn.classList.remove('active');
+      setupWebSocket();
+      fetchNotes(false);
+    });
+
+    // Copy to clipboard
+    copyBtn.addEventListener('click', async () => {
+      const val = textarea.value;
+      try {
+        await navigator.clipboard.writeText(val);
+      } catch {
+        const t = document.createElement('textarea');
+        t.value = val;
+        document.body.appendChild(t);
+        t.select();
+        document.execCommand('copy');
+        document.body.removeChild(t);
+      }
+      copyBtn.textContent = 'Copied';
+      setTimeout(() => {
+        copyBtn.innerHTML = `
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          Copy
+        `;
+      }, 1400);
+    });
+
+    // 1-Click Replace ` to ' (Selection or Full Note)
+    if (replaceQuotesBtn) {
+      replaceQuotesBtn.addEventListener('click', () => {
+        const fullText = textarea.value;
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const hasSelection = (typeof start === 'number' && typeof end === 'number' && start !== end);
+
+        if (hasSelection) {
+          const selectedText = fullText.slice(start, end);
+          const count = (selectedText.match(/`/g) || []).length;
+          if (count === 0) {
+            replaceQuotesBtn.textContent = 'None';
+            setTimeout(() => {
+              replaceQuotesBtn.innerHTML = '` &rarr; \'';
+            }, 1200);
+            return;
+          }
+          const replaced = selectedText.replace(/`/g, "'");
+          textarea.value = fullText.slice(0, start) + replaced + fullText.slice(end);
+          textarea.setSelectionRange(start, start + replaced.length);
+          updateStats();
+          if (currentMode === 'preview' || currentMode === 'split') {
+            updatePreview();
+          }
+          saveNotes(textarea.value);
+          replaceQuotesBtn.textContent = `Replaced (${count})`;
+          setTimeout(() => {
+            replaceQuotesBtn.innerHTML = '` &rarr; \'';
+          }, 1400);
+        } else {
+          const count = (fullText.match(/`/g) || []).length;
+          if (count === 0) {
+            replaceQuotesBtn.textContent = 'None';
+            setTimeout(() => {
+              replaceQuotesBtn.innerHTML = '` &rarr; \'';
+            }, 1200);
+            return;
+          }
+          const replaced = fullText.replace(/`/g, "'");
+          textarea.value = replaced;
+          updateStats();
+          if (currentMode === 'preview' || currentMode === 'split') {
+            updatePreview();
+          }
+          saveNotes(replaced);
+          replaceQuotesBtn.textContent = `Replaced (${count})`;
+          setTimeout(() => {
+            replaceQuotesBtn.innerHTML = '` &rarr; \'';
+          }, 1400);
+        }
+      });
+    }
+
+    // 1-Click Replace em dash (—) to hyphen (-) (Selection or Full Note)
+    if (replaceDashesBtn) {
+      replaceDashesBtn.addEventListener('click', () => {
+        const fullText = textarea.value;
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const hasSelection = (typeof start === 'number' && typeof end === 'number' && start !== end);
+        const dashRegex = /[—–―‒]/g;
+
+        if (hasSelection) {
+          const selectedText = fullText.slice(start, end);
+          const count = (selectedText.match(dashRegex) || []).length;
+          if (count === 0) {
+            replaceDashesBtn.textContent = 'None';
+            setTimeout(() => {
+              replaceDashesBtn.innerHTML = '&mdash; &rarr; -';
+            }, 1200);
+            return;
+          }
+          const replaced = selectedText.replace(dashRegex, '-');
+          textarea.value = fullText.slice(0, start) + replaced + fullText.slice(end);
+          textarea.setSelectionRange(start, start + replaced.length);
+          updateStats();
+          if (currentMode === 'preview' || currentMode === 'split') {
+            updatePreview();
+          }
+          saveNotes(textarea.value);
+          replaceDashesBtn.textContent = `Replaced (${count})`;
+          setTimeout(() => {
+            replaceDashesBtn.innerHTML = '&mdash; &rarr; -';
+          }, 1400);
+        } else {
+          const count = (fullText.match(dashRegex) || []).length;
+          if (count === 0) {
+            replaceDashesBtn.textContent = 'None';
+            setTimeout(() => {
+              replaceDashesBtn.innerHTML = '&mdash; &rarr; -';
+            }, 1200);
+            return;
+          }
+          const replaced = fullText.replace(dashRegex, '-');
+          textarea.value = replaced;
+          updateStats();
+          if (currentMode === 'preview' || currentMode === 'split') {
+            updatePreview();
+          }
+          saveNotes(replaced);
+          replaceDashesBtn.textContent = `Replaced (${count})`;
+          setTimeout(() => {
+            replaceDashesBtn.innerHTML = '&mdash; &rarr; -';
+          }, 1400);
+        }
+      });
+    }
+
+    // Clear notes
+    clearBtn.addEventListener('click', () => {
+      if (!textarea.value) return;
+      textarea.value = '';
+      updateStats();
+      if (currentMode === 'preview' || currentMode === 'split') {
+        updatePreview();
+      }
+      saveNotes('');
+    });
+
+    // Live sync via WebSocket (Socket.IO Engine.IO v4 protocol)
+    function setupWebSocket() {
+      if (activeWs) {
+        try { activeWs.close(); } catch {}
+        activeWs = null;
+      }
+      try {
+        const cleanUrl = serverUrl.replace(/\/+$/, '');
+        const parsed = new URL(cleanUrl);
+        const wsProto = parsed.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${wsProto}//${parsed.host}/socket.io/?EIO=4&transport=websocket`;
+        activeWs = new WebSocket(wsUrl);
+
+        activeWs.onopen = () => {
+          try { activeWs.send('40'); } catch {}
+        };
+
+        activeWs.onmessage = (e) => {
+          const msg = e.data;
+          if (typeof msg !== 'string') return;
+          if (msg === '2') {
+            try { activeWs.send('3'); } catch {}
+            return;
+          }
+          if (msg.startsWith('42')) {
+            try {
+              const payload = JSON.parse(msg.slice(2));
+              if (Array.isArray(payload) && payload[0] === 'server:data_updated') {
+                const data = payload[1] || {};
+                const incoming = typeof data.text === 'string' ? data.text : (typeof data === 'string' ? data : '');
+                if (!isTyping && textarea.value !== incoming) {
+                  textarea.value = incoming;
+                  StorageService.set('lanNotesCachedText', incoming);
+                  updateStats();
+                  if (currentMode === 'preview' || currentMode === 'split') {
+                    updatePreview();
+                  }
+                  setStatus('synced', 'Updated from LAN');
+                  lastSyncEl.textContent = formatTime(data.updatedAt);
+                }
+              }
+            } catch {}
+          }
+        };
+
+        activeWs.onerror = () => {
+          // Graceful fallback to HTTP polling
+        };
+
+        activeWs.onclose = () => {
+          activeWs = null;
+        };
+      } catch {}
+    }
+
+    // Smart background polling every 4 seconds + window focus
+    registerWidgetInterval(() => {
+      if (!isTyping && document.visibilityState === 'visible') {
+        fetchNotes(true);
+      }
+    }, 4000);
+
+    const onWindowFocus = () => {
+      if (!isTyping) fetchNotes(true);
+    };
+    window.addEventListener('focus', onWindowFocus);
+
+    // Initial setup
+    setMode(currentMode);
+    updateStats();
+    setupWebSocket();
+    fetchNotes(false);
   }
 
   async function renderCountdownWidget(container) {
