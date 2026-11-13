@@ -125,6 +125,7 @@
     lanPopupSyncBtn: document.getElementById('lan-popup-sync-btn'),
     lanPopupCopyBtn: document.getElementById('lan-popup-copy-btn'),
     lanPopupSrvUrl: document.getElementById('lan-popup-srv-url'),
+    lanPopupTabsBar: document.getElementById('lan-popup-tabs-bar'),
     lanPopupTextarea: document.getElementById('lan-popup-textarea'),
     lanPopupStats: document.getElementById('lan-popup-stats'),
     lanPopupTime: document.getElementById('lan-popup-time'),
@@ -1014,15 +1015,169 @@
   }
 
   // ==========================================================================
-  // TAB 4: MINI LAN SHARED NOTES
+  // TAB 4: MINI LAN SHARED NOTES (MULTI-TAB FORMAT v2 SUPPORT)
   // ==========================================================================
+  const LAN_NOTE_COLORS = {
+    violet: '#a855f7',
+    onyx: '#64748b',
+    emerald: '#10b981',
+    amber: '#f59e0b',
+    cyan: '#06b6d4',
+    rose: '#f43f5e',
+    blue: '#3b82f6'
+  };
+  const LAN_COLOR_KEYS = Object.keys(LAN_NOTE_COLORS);
+
+  function parseLanNotesPayload(raw) {
+    if (typeof raw !== 'string') raw = '';
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.notes) && parsed.notes.length > 0) {
+        const activeId = (parsed.activeId && parsed.notes.some(n => n.id === parsed.activeId))
+          ? parsed.activeId
+          : parsed.notes[0].id;
+        return {
+          version: parsed.version || 2,
+          activeId,
+          notes: parsed.notes.map(n => ({
+            id: String(n.id || ('note-' + Math.random().toString(36).substr(2, 9))),
+            title: String(n.title || 'Untitled'),
+            author: String(n.author || ''),
+            color: String(n.color || 'cyan'),
+            content: typeof n.content === 'string' ? n.content : '',
+            updatedAt: String(n.updatedAt || 'Just now')
+          }))
+        };
+      }
+    } catch (e) {}
+
+    return {
+      version: 2,
+      activeId: 'note-default',
+      notes: [
+        {
+          id: 'note-default',
+          title: 'General',
+          author: 'Kkaxh1',
+          color: 'cyan',
+          content: raw,
+          updatedAt: 'Just now'
+        }
+      ]
+    };
+  }
+
+  function serializeLanNotesPayload(lanData) {
+    return JSON.stringify({
+      version: 2,
+      activeId: lanData.activeId,
+      notes: lanData.notes
+    }, null, 2);
+  }
+
   async function setupLanNotes() {
     const res = await chrome.storage.local.get(['lanNotesServerUrl', 'lanNotesCachedText']);
     lanServerUrl = res.lanNotesServerUrl || 'http://192.168.1.143:9900';
     const cachedText = res.lanNotesCachedText || '';
 
+    let lanData = parseLanNotesPayload(cachedText);
+
+    function getActiveNote() {
+      let n = lanData.notes.find(item => item.id === lanData.activeId);
+      if (!n) {
+        n = lanData.notes[0];
+        if (n) lanData.activeId = n.id;
+      }
+      if (!n) {
+        n = {
+          id: 'note-' + Date.now(),
+          title: 'General',
+          author: 'Kkaxh1',
+          color: 'cyan',
+          content: '',
+          updatedAt: 'Just now'
+        };
+        lanData.notes.push(n);
+        lanData.activeId = n.id;
+      }
+      return n;
+    }
+
     el.lanPopupSrvUrl.textContent = lanServerUrl;
-    el.lanPopupTextarea.value = cachedText;
+
+    function renderPopupTabs() {
+      if (!el.lanPopupTabsBar) return;
+      el.lanPopupTabsBar.innerHTML = '';
+      getActiveNote();
+
+      lanData.notes.forEach(note => {
+        const tabBtn = document.createElement('button');
+        tabBtn.type = 'button';
+        tabBtn.className = 'lan-popup-tab' + (note.id === lanData.activeId ? ' active' : '');
+        tabBtn.dataset.id = note.id;
+
+        const colorHex = LAN_NOTE_COLORS[note.color] || '#06b6d4';
+        const tooltip = note.author ? `${note.title} (${note.author})` : note.title;
+        tabBtn.title = tooltip;
+
+        tabBtn.innerHTML = `
+          <span class="lan-popup-tab-dot" style="background:${colorHex}"></span>
+          <span class="lan-popup-tab-title">${escapeHtml(note.title)}</span>
+        `;
+
+        tabBtn.addEventListener('click', () => {
+          if (note.id === lanData.activeId) return;
+          // Commit current textarea edits
+          const cur = getActiveNote();
+          cur.content = el.lanPopupTextarea.value;
+          cur.updatedAt = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+          lanData.activeId = note.id;
+          el.lanPopupTextarea.value = note.content;
+          renderPopupTabs();
+          updateLanStats();
+          saveLanNotes();
+        });
+
+        el.lanPopupTabsBar.appendChild(tabBtn);
+      });
+
+      // Add Tab button
+      const addBtn = document.createElement('button');
+      addBtn.type = 'button';
+      addBtn.className = 'lan-popup-add-tab';
+      addBtn.title = 'Add new tab';
+      addBtn.innerHTML = `+ Tab`;
+      addBtn.addEventListener('click', () => {
+        const cur = getActiveNote();
+        cur.content = el.lanPopupTextarea.value;
+
+        const defaultTitle = `Note ${lanData.notes.length + 1}`;
+        const title = prompt('Enter new tab title:', defaultTitle);
+        if (title === null) return;
+        const tabTitle = title.trim() || defaultTitle;
+        const newColor = LAN_COLOR_KEYS[lanData.notes.length % LAN_COLOR_KEYS.length] || 'cyan';
+        const newNote = {
+          id: 'note-' + Date.now(),
+          title: tabTitle,
+          author: 'Kkaxh1',
+          color: newColor,
+          content: '',
+          updatedAt: 'Just now'
+        };
+        lanData.notes.push(newNote);
+        lanData.activeId = newNote.id;
+        el.lanPopupTextarea.value = '';
+        renderPopupTabs();
+        updateLanStats();
+        el.lanPopupTextarea.focus();
+        saveLanNotes();
+      });
+      el.lanPopupTabsBar.appendChild(addBtn);
+    }
+
+    renderPopupTabs();
+    el.lanPopupTextarea.value = getActiveNote().content;
     updateLanStats();
 
     // Fetch initial from server
@@ -1030,11 +1185,13 @@
 
     // Textarea auto-save debounced
     el.lanPopupTextarea.addEventListener('input', () => {
+      getActiveNote().content = el.lanPopupTextarea.value;
+      getActiveNote().updatedAt = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       updateLanStats();
       setLanStatus('saving', 'Saving...');
       clearTimeout(lanDebounceTimer);
       lanDebounceTimer = setTimeout(() => {
-        saveLanNotes(el.lanPopupTextarea.value);
+        saveLanNotes();
       }, 700);
     });
 
@@ -1062,8 +1219,9 @@
           const replaced = selectedText.replace(/`/g, "'");
           textarea.value = fullText.slice(0, start) + replaced + fullText.slice(end);
           textarea.setSelectionRange(start, start + replaced.length);
+          getActiveNote().content = textarea.value;
           updateLanStats();
-          saveLanNotes(textarea.value);
+          saveLanNotes();
           showToast(`Replaced ${count} backtick${count === 1 ? '' : 's'} with ' in selection`);
         } else {
           const count = (fullText.match(/`/g) || []).length;
@@ -1073,8 +1231,9 @@
           }
           const replaced = fullText.replace(/`/g, "'");
           textarea.value = replaced;
+          getActiveNote().content = replaced;
           updateLanStats();
-          saveLanNotes(replaced);
+          saveLanNotes();
           showToast(`Replaced ${count} backtick${count === 1 ? '' : 's'} with ' in notes`);
         }
       });
@@ -1100,8 +1259,9 @@
           const replaced = selectedText.replace(dashRegex, '-');
           textarea.value = fullText.slice(0, start) + replaced + fullText.slice(end);
           textarea.setSelectionRange(start, start + replaced.length);
+          getActiveNote().content = textarea.value;
           updateLanStats();
-          saveLanNotes(textarea.value);
+          saveLanNotes();
           showToast(`Replaced ${count} em dash${count === 1 ? '' : 'es'} with - in selection`);
         } else {
           const count = (fullText.match(dashRegex) || []).length;
@@ -1111,8 +1271,9 @@
           }
           const replaced = fullText.replace(dashRegex, '-');
           textarea.value = replaced;
+          getActiveNote().content = replaced;
           updateLanStats();
-          saveLanNotes(replaced);
+          saveLanNotes();
           showToast(`Replaced ${count} em dash${count === 1 ? '' : 'es'} with - in notes`);
         }
       });
@@ -1121,75 +1282,91 @@
     // Copy Notes
     el.lanPopupCopyBtn.addEventListener('click', async () => {
       await navigator.clipboard.writeText(el.lanPopupTextarea.value);
-      showToast('LAN notes copied to clipboard');
+      showToast('Active note copied to clipboard');
     });
 
     // Clip target
     el.lanPopupClipBtn.addEventListener('click', () => {
       clipTargetToNotes();
     });
-  }
 
-  function clipTargetToNotes() {
-    if (!activeUrl) {
-      showToast('No active URL to clip');
-      return;
-    }
-    const title = activeTab && activeTab.title ? activeTab.title : activeHostname;
-    const clipLine = `\n- [${getTimestamp()}] Target: ${activeUrl} ("${title}")\n`;
-    
-    el.lanPopupTextarea.value = (el.lanPopupTextarea.value.trimEnd() + clipLine).trimStart();
-    updateLanStats();
-    saveLanNotes(el.lanPopupTextarea.value);
-    showToast(`Target clipped to LAN Notes!`);
-  }
-
-  async function fetchLanNotes() {
-    setLanStatus('saving', 'Syncing...');
-    try {
-      const cleanUrl = lanServerUrl.replace(/\/+$/, '');
-      const res = await fetch(`${cleanUrl}/api/notes`, { cache: 'no-store' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      const incoming = typeof data.text === 'string' ? data.text : '';
-      el.lanPopupTextarea.value = incoming;
-      await chrome.storage.local.set({ lanNotesCachedText: incoming });
-      updateLanStats();
-      setLanStatus('synced', 'Synced');
-      el.lanPopupTime.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    } catch (err) {
-      setLanStatus('offline', 'Server Offline');
-    }
-  }
-
-  async function saveLanNotes(text) {
-    try {
-      const cleanUrl = lanServerUrl.replace(/\/+$/, '');
-      const res = await fetch(`${cleanUrl}/api/notes`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, force: true })
-      });
-      if (res.ok) {
-        await chrome.storage.local.set({ lanNotesCachedText: text });
-        setLanStatus('synced', 'Saved');
-        el.lanPopupTime.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      } else {
-        setLanStatus('offline', 'Save error');
+    function clipTargetToNotes() {
+      if (!activeUrl) {
+        showToast('No active URL to clip');
+        return;
       }
-    } catch (err) {
-      setLanStatus('offline', 'Server Offline');
+      const title = activeTab && activeTab.title ? activeTab.title : activeHostname;
+      const clipLine = `\n- [${getTimestamp()}] Target: ${activeUrl} ("${title}")\n`;
+      
+      const active = getActiveNote();
+      const updated = (el.lanPopupTextarea.value.trimEnd() + clipLine).trimStart();
+      el.lanPopupTextarea.value = updated;
+      active.content = updated;
+      active.updatedAt = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      updateLanStats();
+      saveLanNotes();
+      showToast(`Target clipped to note "${active.title}"!`);
     }
-  }
 
-  function setLanStatus(state, label) {
-    el.lanPopupDot.className = `lan-status-dot ${state}`;
-    el.lanPopupStatus.textContent = label;
-  }
+    async function fetchLanNotes() {
+      setLanStatus('saving', 'Syncing...');
+      try {
+        const cleanUrl = lanServerUrl.replace(/\/+$/, '');
+        const res = await fetch(`${cleanUrl}/api/notes`, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        const incomingRaw = typeof data.text === 'string' ? data.text : '';
+        const currentSerialized = serializeLanNotesPayload(lanData);
+        if (incomingRaw !== currentSerialized) {
+          lanData = parseLanNotesPayload(incomingRaw);
+          await chrome.storage.local.set({ lanNotesCachedText: incomingRaw });
+          renderPopupTabs();
+          el.lanPopupTextarea.value = getActiveNote().content;
+          updateLanStats();
+          setLanStatus('synced', 'Synced');
+        } else {
+          setLanStatus('synced', 'Synced');
+        }
+        el.lanPopupTime.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      } catch (err) {
+        setLanStatus('offline', 'Server Offline');
+      }
+    }
 
-  function updateLanStats() {
-    const val = el.lanPopupTextarea.value || '';
-    el.lanPopupStats.textContent = `${val.length} chars`;
+    async function saveLanNotes() {
+      const active = getActiveNote();
+      active.content = el.lanPopupTextarea.value;
+      active.updatedAt = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      const serialized = serializeLanNotesPayload(lanData);
+      try {
+        const cleanUrl = lanServerUrl.replace(/\/+$/, '');
+        const res = await fetch(`${cleanUrl}/api/notes`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: serialized, force: true })
+        });
+        if (res.ok) {
+          await chrome.storage.local.set({ lanNotesCachedText: serialized });
+          setLanStatus('synced', 'Saved');
+          el.lanPopupTime.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        } else {
+          setLanStatus('offline', 'Save error');
+        }
+      } catch (err) {
+        setLanStatus('offline', 'Server Offline');
+      }
+    }
+
+    function setLanStatus(state, label) {
+      el.lanPopupDot.className = `lan-status-dot ${state}`;
+      el.lanPopupStatus.textContent = label;
+    }
+
+    function updateLanStats() {
+      const val = el.lanPopupTextarea.value || '';
+      el.lanPopupStats.textContent = `${val.length} chars`;
+    }
   }
 
   // Utility Escaper

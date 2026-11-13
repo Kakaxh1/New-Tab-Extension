@@ -2010,10 +2010,91 @@ const WidgetsManager = (() => {
     return output.join('\n');
   }
 
+  const LAN_NOTE_COLORS = {
+    violet: '#a855f7',
+    onyx: '#64748b',
+    emerald: '#10b981',
+    amber: '#f59e0b',
+    cyan: '#06b6d4',
+    rose: '#f43f5e',
+    blue: '#3b82f6'
+  };
+  const LAN_COLOR_KEYS = Object.keys(LAN_NOTE_COLORS);
+
+  function parseLanNotesPayload(raw) {
+    if (typeof raw !== 'string') raw = '';
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.notes) && parsed.notes.length > 0) {
+        const activeId = (parsed.activeId && parsed.notes.some(n => n.id === parsed.activeId))
+          ? parsed.activeId
+          : parsed.notes[0].id;
+        return {
+          version: parsed.version || 2,
+          activeId,
+          notes: parsed.notes.map(n => ({
+            id: String(n.id || ('note-' + Math.random().toString(36).substr(2, 9))),
+            title: String(n.title || 'Untitled'),
+            author: String(n.author || ''),
+            color: String(n.color || 'cyan'),
+            content: typeof n.content === 'string' ? n.content : '',
+            updatedAt: String(n.updatedAt || 'Just now')
+          }))
+        };
+      }
+    } catch (e) {}
+
+    return {
+      version: 2,
+      activeId: 'note-default',
+      notes: [
+        {
+          id: 'note-default',
+          title: 'General',
+          author: 'Kkaxh1',
+          color: 'cyan',
+          content: raw,
+          updatedAt: 'Just now'
+        }
+      ]
+    };
+  }
+
+  function serializeLanNotesPayload(lanData) {
+    return JSON.stringify({
+      version: 2,
+      activeId: lanData.activeId,
+      notes: lanData.notes
+    }, null, 2);
+  }
+
   async function renderLanNotesWidget(container) {
     let serverUrl = await StorageService.get('lanNotesServerUrl', StorageService.DEFAULTS.lanNotesServerUrl || 'http://192.168.1.143:9900');
     let cachedNotes = await StorageService.get('lanNotesCachedText', '');
     let currentMode = await StorageService.get('lanNotesViewMode', 'edit');
+
+    let lanData = parseLanNotesPayload(cachedNotes);
+
+    function getActiveNote() {
+      let n = lanData.notes.find(item => item.id === lanData.activeId);
+      if (!n) {
+        n = lanData.notes[0];
+        if (n) lanData.activeId = n.id;
+      }
+      if (!n) {
+        n = {
+          id: 'note-' + Date.now(),
+          title: 'General',
+          author: 'Kkaxh1',
+          color: 'cyan',
+          content: '',
+          updatedAt: 'Just now'
+        };
+        lanData.notes.push(n);
+        lanData.activeId = n.id;
+      }
+      return n;
+    }
 
     const wrapper = document.createElement('div');
     wrapper.className = 'lannotes-wrapper';
@@ -2046,7 +2127,7 @@ const WidgetsManager = (() => {
           </svg>
           IP
         </button>
-        <button class="lannotes-btn" id="lan-copy-btn" title="Copy notes to clipboard" type="button">
+        <button class="lannotes-btn" id="lan-copy-btn" title="Copy active note to clipboard" type="button">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
@@ -2059,7 +2140,7 @@ const WidgetsManager = (() => {
         <button class="lannotes-btn" id="lan-replace-dashes-btn" title="Replace em dash (&mdash;) to hyphen (-) (1-click: converts em/en dashes to hyphens in selection or all)" type="button">
           &mdash; &rarr; -
         </button>
-        <button class="lannotes-btn" id="lan-clear-btn" title="Clear notes" type="button">
+        <button class="lannotes-btn" id="lan-clear-btn" title="Clear active note" type="button">
           Clear
         </button>
       </div>
@@ -2075,6 +2156,11 @@ const WidgetsManager = (() => {
       <button class="lannotes-btn" id="lan-default-ip-btn" type="button">Default</button>
     `;
 
+    // Tabs Bar
+    const tabsBar = document.createElement('div');
+    tabsBar.className = 'lannotes-tabs-bar';
+    tabsBar.id = 'lan-tabs-bar';
+
     // Body Wrap (Textarea + Rendered Markdown Preview)
     const bodyWrap = document.createElement('div');
     bodyWrap.className = 'lannotes-body-wrap mode-edit';
@@ -2083,7 +2169,7 @@ const WidgetsManager = (() => {
     const textarea = document.createElement('textarea');
     textarea.className = 'lannotes-textarea';
     textarea.placeholder = 'Type or paste notes here (syncs across LAN to shared_notes.txt)...\nSupports Markdown (#, ##, **bold**, `code`), tables (| a | b |), links (https://...), and task checklists (- [ ]).';
-    textarea.value = cachedNotes;
+    textarea.value = getActiveNote().content;
 
     // Preview
     const previewEl = document.createElement('div');
@@ -2099,11 +2185,12 @@ const WidgetsManager = (() => {
     footer.innerHTML = `
       <span class="lannotes-footer-server" id="lan-footer-srv">${escapeHtml(serverUrl)}</span>
       <span class="lannotes-footer-hint" id="lan-footer-hint">Double-click preview to edit</span>
-      <span class="lannotes-stats" id="lan-stats">${cachedNotes.length} chars</span>
+      <span class="lannotes-stats" id="lan-stats">${textarea.value.length} chars</span>
     `;
 
     wrapper.appendChild(toolbar);
     wrapper.appendChild(configBar);
+    wrapper.appendChild(tabsBar);
     wrapper.appendChild(bodyWrap);
     wrapper.appendChild(footer);
     container.appendChild(wrapper);
@@ -2207,10 +2294,134 @@ const WidgetsManager = (() => {
       });
       if (newText !== textarea.value) {
         textarea.value = newText;
+        getActiveNote().content = newText;
         updateStats();
         updatePreview();
-        saveNotes(newText);
+        saveNotes();
       }
+    }
+
+    function renderTabs() {
+      tabsBar.innerHTML = '';
+      getActiveNote();
+
+      lanData.notes.forEach(note => {
+        const item = document.createElement('div');
+        item.className = 'lannotes-tab-item' + (note.id === lanData.activeId ? ' active' : '');
+        item.dataset.id = note.id;
+
+        const colorHex = LAN_NOTE_COLORS[note.color] || '#06b6d4';
+        const tooltip = note.author ? `${note.title} (${note.author})` : note.title;
+
+        item.innerHTML = `
+          <button type="button" class="lannotes-tab-btn" title="${escapeHtml(tooltip)}">
+            <span class="lannotes-tab-dot" style="background:${colorHex}"></span>
+            <span class="lannotes-tab-title">${escapeHtml(note.title)}</span>
+          </button>
+          <button type="button" class="lannotes-tab-edit" title="Rename tab">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </button>
+          ${lanData.notes.length > 1 ? `
+          <button type="button" class="lannotes-tab-close" title="Close tab">
+            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>` : ''}
+        `;
+
+        // Switch Tab
+        item.querySelector('.lannotes-tab-btn').addEventListener('click', () => {
+          if (note.id === lanData.activeId) return;
+          // Commit current textarea content to active note
+          const cur = getActiveNote();
+          cur.content = textarea.value;
+          cur.updatedAt = getNowTimeString();
+
+          lanData.activeId = note.id;
+          textarea.value = note.content;
+          renderTabs();
+          updateStats();
+          if (currentMode === 'preview' || currentMode === 'split') {
+            updatePreview();
+          }
+          saveNotes();
+        });
+
+        // Rename Tab
+        item.querySelector('.lannotes-tab-edit').addEventListener('click', (e) => {
+          e.stopPropagation();
+          const newTitle = prompt('Rename tab:', note.title);
+          if (newTitle !== null && newTitle.trim()) {
+            note.title = newTitle.trim();
+            note.updatedAt = getNowTimeString();
+            renderTabs();
+            saveNotes();
+          }
+        });
+
+        // Close Tab
+        const closeBtn = item.querySelector('.lannotes-tab-close');
+        if (closeBtn) {
+          closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (lanData.notes.length <= 1) return;
+            if (confirm(`Close tab "${note.title}"?`)) {
+              lanData.notes = lanData.notes.filter(n => n.id !== note.id);
+              if (lanData.activeId === note.id) {
+                lanData.activeId = lanData.notes[0].id;
+              }
+              const nextActive = getActiveNote();
+              textarea.value = nextActive.content;
+              renderTabs();
+              updateStats();
+              if (currentMode === 'preview' || currentMode === 'split') {
+                updatePreview();
+              }
+              saveNotes();
+            }
+          });
+        }
+
+        tabsBar.appendChild(item);
+      });
+
+      // Add Tab Button
+      const addBtn = document.createElement('button');
+      addBtn.type = 'button';
+      addBtn.className = 'lannotes-add-tab-btn';
+      addBtn.title = 'Create new tab';
+      addBtn.innerHTML = `
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <span>Tab</span>
+      `;
+      addBtn.addEventListener('click', () => {
+        // Save current note
+        const cur = getActiveNote();
+        cur.content = textarea.value;
+
+        const defaultTitle = `Note ${lanData.notes.length + 1}`;
+        const title = prompt('Enter new tab title:', defaultTitle);
+        if (title === null) return;
+        const tabTitle = title.trim() || defaultTitle;
+        const newColor = LAN_COLOR_KEYS[lanData.notes.length % LAN_COLOR_KEYS.length] || 'cyan';
+        const newNote = {
+          id: 'note-' + Date.now(),
+          title: tabTitle,
+          author: 'Kkaxh1',
+          color: newColor,
+          content: '',
+          updatedAt: 'Just now'
+        };
+        lanData.notes.push(newNote);
+        lanData.activeId = newNote.id;
+        textarea.value = '';
+        renderTabs();
+        updateStats();
+        if (currentMode === 'preview' || currentMode === 'split') {
+          updatePreview();
+        }
+        textarea.focus();
+        saveNotes();
+      });
+      tabsBar.appendChild(addBtn);
     }
 
     function setMode(mode) {
@@ -2253,10 +2464,13 @@ const WidgetsManager = (() => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         if (!isTyping) {
-          const incoming = typeof data.text === 'string' ? data.text : '';
-          if (textarea.value !== incoming) {
-            textarea.value = incoming;
-            StorageService.set('lanNotesCachedText', incoming);
+          const incomingRaw = typeof data.text === 'string' ? data.text : '';
+          const currentSerialized = serializeLanNotesPayload(lanData);
+          if (incomingRaw !== currentSerialized) {
+            lanData = parseLanNotesPayload(incomingRaw);
+            StorageService.set('lanNotesCachedText', incomingRaw);
+            renderTabs();
+            textarea.value = getActiveNote().content;
             updateStats();
             if (currentMode === 'preview' || currentMode === 'split') {
               updatePreview();
@@ -2274,18 +2488,23 @@ const WidgetsManager = (() => {
       }
     }
 
-    async function saveNotes(text) {
+    async function saveNotes() {
       setStatus('saving', 'Saving...');
+      const active = getActiveNote();
+      active.content = textarea.value;
+      active.updatedAt = getNowTimeString();
+
+      const serialized = serializeLanNotesPayload(lanData);
       try {
         const cleanUrl = serverUrl.replace(/\/+$/, '');
         const res = await fetch(`${cleanUrl}/api/notes`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, force: true })
+          body: JSON.stringify({ text: serialized, force: true })
         });
         const data = await res.json().catch(() => ({}));
         if (res.ok && data.ok !== false) {
-          StorageService.set('lanNotesCachedText', text);
+          StorageService.set('lanNotesCachedText', serialized);
           setStatus('synced', 'Saved');
           lastSyncEl.textContent = getNowTimeString();
           isTyping = false;
@@ -2300,6 +2519,8 @@ const WidgetsManager = (() => {
     // Auto-save debounced on input
     textarea.addEventListener('input', () => {
       isTyping = true;
+      getActiveNote().content = textarea.value;
+      getActiveNote().updatedAt = getNowTimeString();
       updateStats();
       if (currentMode === 'split') {
         updatePreview();
@@ -2313,9 +2534,12 @@ const WidgetsManager = (() => {
 
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
-        saveNotes(textarea.value);
+        saveNotes();
       }, 800);
     });
+
+    // Render initial tabs
+    renderTabs();
 
     // Manual sync button
     syncBtn.addEventListener('click', () => {
@@ -2498,11 +2722,12 @@ const WidgetsManager = (() => {
     clearBtn.addEventListener('click', () => {
       if (!textarea.value) return;
       textarea.value = '';
+      getActiveNote().content = '';
       updateStats();
       if (currentMode === 'preview' || currentMode === 'split') {
         updatePreview();
       }
-      saveNotes('');
+      saveNotes();
     });
 
     // Live sync via WebSocket (Socket.IO Engine.IO v4 protocol)
@@ -2534,16 +2759,21 @@ const WidgetsManager = (() => {
               const payload = JSON.parse(msg.slice(2));
               if (Array.isArray(payload) && payload[0] === 'server:data_updated') {
                 const data = payload[1] || {};
-                const incoming = typeof data.text === 'string' ? data.text : (typeof data === 'string' ? data : '');
-                if (!isTyping && textarea.value !== incoming) {
-                  textarea.value = incoming;
-                  StorageService.set('lanNotesCachedText', incoming);
-                  updateStats();
-                  if (currentMode === 'preview' || currentMode === 'split') {
-                    updatePreview();
+                const incomingRaw = typeof data.text === 'string' ? data.text : (typeof data === 'string' ? data : '');
+                if (!isTyping) {
+                  const currentSerialized = serializeLanNotesPayload(lanData);
+                  if (incomingRaw !== currentSerialized) {
+                    lanData = parseLanNotesPayload(incomingRaw);
+                    StorageService.set('lanNotesCachedText', incomingRaw);
+                    renderTabs();
+                    textarea.value = getActiveNote().content;
+                    updateStats();
+                    if (currentMode === 'preview' || currentMode === 'split') {
+                      updatePreview();
+                    }
+                    setStatus('synced', 'Updated from LAN');
+                    lastSyncEl.textContent = formatTime(data.updatedAt);
                   }
-                  setStatus('synced', 'Updated from LAN');
-                  lastSyncEl.textContent = formatTime(data.updatedAt);
                 }
               }
             } catch {}

@@ -3739,6 +3739,134 @@ body.is-arrange-mode .widget-card .widget-controls {
   display: flex;
 }
 
+/* Multi-tab Bar */
+.lannotes-tabs-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2px 2px 4px 2px;
+  scrollbar-width: thin;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.lannotes-tabs-bar::-webkit-scrollbar {
+  height: 3px;
+}
+
+.lannotes-tabs-bar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+}
+
+.lannotes-tab-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 4px 2px 7px;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  user-select: none;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+}
+
+.lannotes-tab-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: var(--border-hover);
+}
+
+.lannotes-tab-item.active {
+  background: rgba(59, 130, 246, 0.14);
+  border-color: var(--accent);
+  color: var(--text);
+  box-shadow: 0 1px 4px var(--accent-glow);
+}
+
+.lannotes-tab-btn {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  outline: none;
+}
+
+.lannotes-tab-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.lannotes-tab-title {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lannotes-tab-edit,
+.lannotes-tab-close {
+  background: transparent;
+  border: none;
+  color: var(--text-subtle);
+  cursor: pointer;
+  padding: 1px 2px;
+  border-radius: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  transition: all var(--transition-fast);
+}
+
+.lannotes-tab-edit:hover,
+.lannotes-tab-close:hover {
+  color: var(--text);
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.lannotes-tab-close:hover {
+  color: #ef4444;
+}
+
+.lannotes-add-tab-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed var(--border);
+  color: var(--text-subtle);
+  border-radius: 4px;
+  padding: 3px 7px;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.lannotes-add-tab-btn:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
 .lannotes-config-label {
   font-family: var(--font-mono);
   font-size: 0.62rem;

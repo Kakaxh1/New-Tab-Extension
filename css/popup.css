@@ -1437,6 +1437,85 @@ body.popup-body {
   text-overflow: ellipsis;
 }
 
+/* Popup LAN Tabs */
+.lan-popup-tabs-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 3px 0 5px;
+  border-bottom: 1px solid var(--border);
+  scrollbar-width: thin;
+}
+
+.lan-popup-tabs-bar::-webkit-scrollbar {
+  height: 2px;
+}
+
+.lan-popup-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.lan-popup-tab:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text);
+}
+
+.lan-popup-tab.active {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: var(--accent);
+  color: var(--text);
+  box-shadow: 0 1px 4px var(--accent-glow);
+}
+
+.lan-popup-tab-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.lan-popup-tab-title {
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lan-popup-add-tab {
+  background: transparent;
+  border: 1px dashed var(--border);
+  color: var(--text-subtle);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  transition: all var(--transition-fast);
+}
+
+.lan-popup-add-tab:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
 .lan-popup-textarea {
   width: 100%;
   height: 220px;

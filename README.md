@@ -75,7 +75,7 @@ Clicking the extension icon in Chrome opens a personal companion popup for inspe
 * **Hidden Field & Form Inspector**: View hidden form inputs on pages and toggle "Reveal & Unlock" to see how forms structure client-side parameters.
 * **Script & Endpoint Scraper**: Scan script tags on the active page to spot internal API paths and endpoints for learning purposes.
 * **User-Agent Switcher**: Test how sites adapt layout across mobile, Googlebot, and custom desktop personas.
-* **Mini LAN Shared Notes**: A synced scratchpad connected to your local home network (`shared_notes.txt`). Includes 1-click text formatting tools:
+* **Mini LAN Shared Notes (Multi-Tab v2)**: A synchronized scratchpad connected to your local home network workspace with multi-tab support (`shared_notes.txt` / KHP Workspace). Features instant tab switching, tab creation, and 1-click text formatting tools:
   * **Quote Normalizer (` ` -> `'`)**: Converts backticks to single quotes within highlighted selections or entire notes.
   * **Dash Normalizer (`—` -> `-`)**: Replaces Word and macOS em/en dashes with standard clean hyphens.
 
@@ -88,7 +88,7 @@ Every card on the dashboard can be dragged, repositioned, resized, or removed:
   * **Networking Reference**: Common ports, protocols, and CIDR subnet calculator.
   * **Digital Clock & Calendar**: Monospace high-precision clock and date display.
   * **Thought of the Moment**: Curated security and philosophical quotes (`Q` to cycle, `C` to copy).
-  * **LAN Shared Notes**: Full Markdown viewer and editor synchronized with your local network.
+  * **LAN Shared Notes (Multi-Tab v2)**: Full Markdown viewer and editor synchronized with your local network workspace. Features multi-tab management (create, rename, close tabs with color tags), real-time WebSocket sync, interactive task checkboxes, split preview, and 1-click format converters.
   * **To-Do Checklist**: Fast, interactive task list synced with the slide-out task drawer.
 
 ### 6. Bottom Dock & Curated Reference Flyouts
