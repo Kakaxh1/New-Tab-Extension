@@ -239,12 +239,14 @@
         el.copyTargetUrlBtn.addEventListener('click', async () => {
           try {
             await navigator.clipboard.writeText(activeUrl);
+            if (window.IconAnimator) IconAnimator.morphSuccess(el.copyTargetUrlBtn);
             showToast('URL copied to clipboard');
           } catch {}
         });
 
         // Setup Clip to notes
         el.clipToNotesBtn.addEventListener('click', () => {
+          if (window.IconAnimator) IconAnimator.pop(el.clipToNotesBtn);
           clipTargetToNotes();
         });
 
@@ -572,12 +574,14 @@
   if (el.copyRawHeadersBtn && el.rawHeadersPre) {
     el.copyRawHeadersBtn.addEventListener('click', async () => {
       await navigator.clipboard.writeText(el.rawHeadersPre.textContent);
+      if (window.IconAnimator) IconAnimator.pop(el.copyRawHeadersBtn);
       showToast('Raw HTTP response headers copied to clipboard');
     });
   }
 
   if (el.refreshHeadersBtn) {
     el.refreshHeadersBtn.addEventListener('click', () => {
+      if (window.IconAnimator) IconAnimator.spin(el.refreshHeadersBtn);
       if (activeUrl) auditSecurityHeaders(activeUrl, true);
     });
   }
@@ -728,6 +732,7 @@
   // Reveal & Unlock Hidden Fields on Target Page Live
   if (el.revealHiddenFieldsBtn) {
     el.revealHiddenFieldsBtn.addEventListener('click', async () => {
+      if (window.IconAnimator) IconAnimator.pop(el.revealHiddenFieldsBtn);
       if (!activeTab || !activeTab.id) return;
       try {
         const results = await chrome.scripting.executeScript({
@@ -784,6 +789,7 @@
 
   if (el.scanFormsBtn) {
     el.scanFormsBtn.addEventListener('click', () => {
+      if (window.IconAnimator) IconAnimator.spin(el.scanFormsBtn);
       scanPageForms();
     });
   }
@@ -894,12 +900,14 @@
     el.copyAllEndpointsBtn.addEventListener('click', async () => {
       if (discoveredEndpoints.length === 0) return;
       await navigator.clipboard.writeText(discoveredEndpoints.join('\n'));
+      if (window.IconAnimator) IconAnimator.pop(el.copyAllEndpointsBtn);
       showToast(`Copied ${discoveredEndpoints.length} endpoints to clipboard`);
     });
   }
 
   if (el.scrapeEndpointsBtn) {
     el.scrapeEndpointsBtn.addEventListener('click', () => {
+      if (window.IconAnimator) IconAnimator.spin(el.scrapeEndpointsBtn);
       scrapePageEndpoints();
     });
   }
@@ -1197,6 +1205,7 @@
 
     // Manual Sync
     el.lanPopupSyncBtn.addEventListener('click', () => {
+      if (window.IconAnimator) IconAnimator.spin(el.lanPopupSyncBtn);
       fetchLanNotes();
     });
 
@@ -1282,11 +1291,13 @@
     // Copy Notes
     el.lanPopupCopyBtn.addEventListener('click', async () => {
       await navigator.clipboard.writeText(el.lanPopupTextarea.value);
+      if (window.IconAnimator) IconAnimator.pop(el.lanPopupCopyBtn);
       showToast('Active note copied to clipboard');
     });
 
     // Clip target
     el.lanPopupClipBtn.addEventListener('click', () => {
+      if (window.IconAnimator) IconAnimator.pop(el.lanPopupClipBtn);
       clipTargetToNotes();
     });
 

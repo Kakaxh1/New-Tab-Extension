@@ -1,0 +1,229 @@
+/* ==========================================================================
+   CYBERTAB ICON ANIMATION SUITE
+   High-performance, GPU-accelerated SVG & Lottie micro-interactions
+   Strictly ZERO emojis - Pure Vector Graphics & Keyframes
+   ========================================================================== */
+
+/* Base icon animation optimization */
+svg,
+.icon-animated,
+.lottie-container {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* --------------------------------------------------------------------------
+   1. ELASTIC SPRING POP & BOUNCE
+   -------------------------------------------------------------------------- */
+@keyframes iconSpringPop {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.3) rotate(-4deg);
+  }
+  65% {
+    transform: scale(0.92) rotate(2deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.icon-pop,
+[data-icon-anim="pop"]:active svg,
+.btn-action-primary:active svg,
+.lannotes-btn:active svg {
+  animation: iconSpringPop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* --------------------------------------------------------------------------
+   2. SMOOTH ROTATION & CONTINUOUS SPIN (Sync, Refresh, Loading)
+   -------------------------------------------------------------------------- */
+@keyframes iconSpinSmooth {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.icon-spin,
+.is-spinning svg {
+  animation: iconSpinSmooth 0.85s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Hover-triggered single spin with elastic finish */
+@keyframes iconSpinOnce {
+  0% {
+    transform: rotate(0deg);
+  }
+  80% {
+    transform: rotate(375deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+[data-icon-anim="spin"]:hover svg,
+#lan-sync-btn:hover svg,
+#lan-popup-sync-btn:hover svg {
+  animation: iconSpinOnce 0.65s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* --------------------------------------------------------------------------
+   3. MECHANICAL GEAR TWIST (Settings, Preferences)
+   -------------------------------------------------------------------------- */
+@keyframes iconGearTurn {
+  0% {
+    transform: rotate(0deg);
+  }
+  70% {
+    transform: rotate(98deg);
+  }
+  100% {
+    transform: rotate(90deg);
+  }
+}
+
+[data-icon-anim="gear"]:hover svg,
+#open-settings-btn:hover svg,
+#lan-cfg-btn:hover svg {
+  animation: iconGearTurn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* --------------------------------------------------------------------------
+   4. 3D FLIP (Shuffle Wallpaper, Switcher, Inversion)
+   -------------------------------------------------------------------------- */
+@keyframes iconFlip3D {
+  0% {
+    transform: perspective(400px) rotateY(0deg) scale(1);
+  }
+  50% {
+    transform: perspective(400px) rotateY(180deg) scale(1.15);
+  }
+  100% {
+    transform: perspective(400px) rotateY(360deg) scale(1);
+  }
+}
+
+.icon-flip,
+[data-icon-anim="flip"]:hover svg,
+#btn-shuffle-unsplash:hover svg,
+#toggle-wallpaper-btn:hover svg {
+  animation: iconFlip3D 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* --------------------------------------------------------------------------
+   5. RADAR & TELEMETRY RIPPLE PULSE (Network, IP, Live Status)
+   -------------------------------------------------------------------------- */
+@keyframes iconRadarPulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.18);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.85;
+  }
+}
+
+.icon-pulse,
+.status-indicator-live,
+#network-telemetry-pill:hover svg {
+  animation: iconRadarPulse 1.8s ease-in-out infinite;
+}
+
+/* --------------------------------------------------------------------------
+   6. CHECKMARK DRAW & SUCCESS MORPH (Task Completed, Copied Feedback)
+   -------------------------------------------------------------------------- */
+@keyframes iconDrawStroke {
+  0% {
+    stroke-dashoffset: 24;
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+.icon-draw-check {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 0;
+  animation: iconDrawStroke 0.35s ease-out forwards;
+}
+
+/* --------------------------------------------------------------------------
+   7. WIGGLE / VIBRATION (Bypasses, Exploits, Alerts)
+   -------------------------------------------------------------------------- */
+@keyframes iconWiggle {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(-10deg) scale(1.05);
+  }
+  40% {
+    transform: rotate(10deg) scale(1.05);
+  }
+  60% {
+    transform: rotate(-6deg);
+  }
+  80% {
+    transform: rotate(6deg);
+  }
+}
+
+.icon-wiggle,
+[data-icon-anim="wiggle"]:hover svg,
+#open-shortcuts-btn:hover svg {
+  animation: iconWiggle 0.5s ease-in-out;
+}
+
+/* --------------------------------------------------------------------------
+   8. ELEVATION / SPRING HOVER LIFT (Dock Items & Toolbar Buttons)
+   -------------------------------------------------------------------------- */
+.dock-item,
+.btn-nav-action,
+.wallpaper-thumb-card {
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, background-color 0.2s ease;
+}
+
+.dock-item:hover svg,
+.btn-nav-action:hover svg {
+  transform: translateY(-2px) scale(1.08);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.dock-item:active svg,
+.btn-nav-action:active svg {
+  transform: translateY(1px) scale(0.94);
+}
+
+/* --------------------------------------------------------------------------
+   9. LOTTIE CONTAINER STYLING
+   -------------------------------------------------------------------------- */
+.lottie-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.lottie-icon-wrap svg {
+  width: 100% !important;
+  height: 100% !important;
+}

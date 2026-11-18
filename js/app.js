@@ -1090,6 +1090,7 @@ function initSettingsPanel(initialState) {
 
   if (btnShuffleUnsplash) {
     btnShuffleUnsplash.addEventListener('click', async () => {
+      if (window.IconAnimator) IconAnimator.flip(btnShuffleUnsplash);
       const q = unsplashSearchInput ? unsplashSearchInput.value.trim() : 'cyber security';
       const cat = unsplashCategorySelect ? unsplashCategorySelect.value : 'technology';
       await triggerUnsplashShuffle(q, cat, true);
@@ -1857,6 +1858,7 @@ async function initIpIndicator() {
   if (refreshBtn) {
     refreshBtn.addEventListener('click', (e) => {
       e.stopPropagation();
+      if (window.IconAnimator) IconAnimator.spin(refreshBtn);
       checkIp();
     });
   }
@@ -1867,6 +1869,7 @@ async function initIpIndicator() {
       if (currentIpData && currentIpData.ip) {
         try {
           await navigator.clipboard.writeText(currentIpData.ip);
+          if (window.IconAnimator) IconAnimator.pop(copyBtn);
           copyBtn.textContent = 'Copied';
           setTimeout(() => { copyBtn.textContent = 'Copy IP'; }, 1500);
         } catch {
@@ -2952,6 +2955,7 @@ if (copyBtn) {
     const text = compiledText.textContent;
     if (text && text !== '(empty)') {
       navigator.clipboard.writeText(text);
+      if (window.IconAnimator) IconAnimator.pop(copyBtn);
       showToast('Copied dork query to clipboard');
       copyBtn.querySelector('span').textContent = 'COPIED!';
       setTimeout(() => { copyBtn.querySelector('span').textContent = 'Copy Query'; }, 1200);
